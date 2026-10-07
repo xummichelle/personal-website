@@ -23,7 +23,7 @@ export function ProjectCard({ project }: { project: Project }) {
       </div>
       <div className="flex flex-1 flex-col px-3 pt-5 pb-3">
         <p className="text-xs font-semibold tracking-[0.08em] text-ink-soft uppercase">{project.date}</p>
-        <h2 className="mt-1 font-serif text-[1.75rem] leading-tight font-semibold">{project.title}</h2>
+        <h2 className="mt-1 font-hand text-3xl leading-tight">{project.title}</h2>
         <p className="mt-2 flex-1 text-[0.95rem] leading-relaxed text-ink-soft">{project.blurb}</p>
         <ul className="mt-4 flex flex-wrap gap-1.5">
           {project.tags.map((t) => (

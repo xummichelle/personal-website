@@ -8,7 +8,7 @@ export type ActionType = "feed" | "poo" | "bathe" | "jump" | "spin";
 export type PetAction = { type: ActionType; key: number };
 export type Poo = { id: number; x: number };
 
-export const DEFAULT_LOOK: Look = { hat: "beret", toy: "yarn", food: "dumpling" };
+export const DEFAULT_LOOK: Look = { hat: "bow", toy: "yarn", food: "ice-cream" };
 
 /** How long each action plays, in ms. Keep in sync with the CSS keyframes. */
 export const ACTION_MS: Record<ActionType, number> = {
@@ -41,12 +41,17 @@ type PetContextValue = {
 
 const PetContext = createContext<PetContextValue | null>(null);
 
-function isValidLook(value: unknown): value is Look {
-  if (!value || typeof value !== "object") return false;
-  const v = value as Record<string, unknown>;
-  return (
-    HATS.some((h) => h.id === v.hat) && TOYS.some((t) => t.id === v.toy) && FOODS.some((f) => f.id === v.food)
-  );
+const isObject = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object";
+
+/** Keeps each saved pick that still exists; anything removed falls back to the default. */
+function toLook(v: Record<string, unknown>): Look {
+  const pick = <T extends string>(list: readonly { id: T }[], id: unknown, fallback: T) =>
+    list.find((o) => o.id === id)?.id ?? fallback;
+  return {
+    hat: pick(HATS, v.hat, DEFAULT_LOOK.hat),
+    toy: pick(TOYS, v.toy, DEFAULT_LOOK.toy),
+    food: pick(FOODS, v.food, DEFAULT_LOOK.food),
+  };
 }
 
 function readStorage<T>(key: string, validate: (v: unknown) => v is T): T | null {
@@ -80,7 +85,8 @@ export function PetProvider({ children }: { children: ReactNode }) {
   const actionTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
-    const look = readStorage(LOOK_KEY, isValidLook);
+    const stored = readStorage(LOOK_KEY, isObject);
+    const look = stored && toLook(stored);
     const storedPoos = readStorage(POO_KEY, isPooList);
     /* eslint-disable react-hooks/set-state-in-effect -- one-time sync from localStorage after hydration */
     if (look) {

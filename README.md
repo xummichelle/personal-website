@@ -14,7 +14,8 @@ npm run build   # production build check
 | --- | --- |
 | Colours (CSS variables) | `src/app/globals.css` → `:root` |
 | Fonts (Fraunces / DM Sans / Schoolbell) | `src/app/layout.tsx` |
-| Home page text + photo | `src/app/page.tsx`, `public/me.webp` |
+| Home page (rotating headline + pet) | `src/app/page.tsx`, `src/components/HomePet.tsx` |
+| About me (bio + photo) | `src/app/about/page.tsx`, `public/me.webp` |
 | Projects (cards + detail pages) | `src/data/projects.ts`, images in `public/projects/<slug>/` |
 | Links (email, LinkedIn, GitHub, resume) | `src/data/site.ts`, `public/resume.pdf` |
 | Nav bar | `src/components/NavBar.tsx` |
@@ -41,7 +42,7 @@ works because those animate the whole drawing.
 
 ## How the pet works
 
-- **Customising (home page):** the dropdowns change a *draft* look. **Save** stores it in
+- **Customising (home page):** the carousel arrows around the pet (‹ › for the hat, ▲ ▼ beside each hand) change a *draft* look. **Save** stores it in
   `localStorage`, and leaving the page (or closing the tab) also saves whatever is picked.
 - **Nav bar pet:** on every other page the pet shrinks onto the bar and wanders back and
   forth wearing the saved look. Clicking a nav link makes it jump or spin, and clicking

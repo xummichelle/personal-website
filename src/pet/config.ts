@@ -13,7 +13,7 @@
 // in accessories.tsx instead of an SVG `render` function.
 // ──────────────────────────────────────────────────────────────────────────
 
-export const PET_NAME = "mochi";
+export const PET_NAME = "mimi";
 
 /** Path to a PNG/SVG in /public to use as the pet body, or null for the generated one. */
 export const PET_IMAGE: string | null = null;
@@ -24,11 +24,11 @@ export type Point = { x: number; y: number };
 
 export const ANCHORS = {
   /** Where the bottom-centre of a hat sits. */
-  head: { x: 100, y: 74 },
+  head: { x: 120, y: 52 },
   /** Viewer's left hand: holds the toy. */
-  leftHand: { x: 38, y: 150 },
+  leftHand: { x: 44, y: 150 },
   /** Viewer's right hand: holds the food. */
-  rightHand: { x: 162, y: 150 },
+  rightHand: { x: 150, y: 150 },
   /** Where food travels to while eating. */
-  mouth: { x: 100, y: 140 },
+  mouth: { x: 154, y: 96 },
 } satisfies Record<string, Point>;

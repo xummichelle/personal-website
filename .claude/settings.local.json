@@ -3,7 +3,9 @@
     "allow": [
       "Bash(find ~/Downloads ~/Desktop ~/Documents -maxdepth 2 \\\\\\( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.pdf' -o -iname '*.heic' \\\\\\) -mtime -14 2>/dev/null | head -40)",
       "Read(//Users/michelle/Downloads/**)",
-      "Bash(python3 -c \"import pypdf\")"
+      "Bash(python3 -c \"import pypdf\")",
+      "defaultMode",
+      "bypassPermissions"
     ]
   }
 }

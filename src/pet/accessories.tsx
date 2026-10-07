@@ -9,6 +9,7 @@ export const PALETTE = {
   plum: "#6a4b63",
   red: "#a8434b",
   cream: "#f6efe0",
+  pink: "#e9a9b4",
   white: "#ffffff",
 };
 const P = PALETTE;
@@ -33,13 +34,19 @@ export type Accessory = {
 
 export const HATS = [
   {
-    id: "beret",
-    label: "Artist beret",
+    id: "bow",
+    label: "Hair bow",
     render: () => (
-      <g transform="rotate(-12)">
-        <path d="M-34 -6 C-36 -24 -12 -30 4 -28 C22 -27 38 -20 34 -6 C30 2 -30 4 -34 -6 Z" fill={P.red} {...line} />
-        <path d="M-22 -10 C-10 -14 12 -14 24 -10" fill="none" {...line} strokeWidth={2} opacity={0.5} />
-        <path d="M2 -28 L4 -38" fill="none" {...line} />
+      <g transform="translate(0 3) rotate(-12)">
+        {/* ribbon tails */}
+        <path d="M-3 -12 L-11 1 L-6 0 L-3 4 L1 -10 Z" fill={P.red} {...line} />
+        <path d="M3 -12 L11 0 L6 -1 L4 3 L-1 -10 Z" fill={P.red} {...line} />
+        {/* loops */}
+        <path d="M0 -14 C-8 -28 -30 -30 -30 -15 C-30 -1 -10 -3 0 -14 Z" fill={P.red} {...line} />
+        <path d="M0 -14 C8 -28 30 -30 30 -15 C30 -1 10 -3 0 -14 Z" fill={P.red} {...line} />
+        <path d="M-7 -17 C-13 -22 -20 -21 -23 -16 M7 -17 C13 -22 20 -21 23 -16" fill="none" {...line} strokeWidth={1.8} />
+        {/* knot */}
+        <rect x={-6} y={-20} width={12} height={12} rx={4} fill={P.red} {...line} className="solid" />
       </g>
     ),
   },
@@ -108,31 +115,25 @@ export const TOYS = [
 
 export const FOODS = [
   {
-    id: "dumpling",
-    label: "Dumpling",
+    id: "ice-cream",
+    label: "Ice cream",
     render: () => (
       <g>
-        <path d="M-24 8 C-24 -12 -10 -20 0 -20 C10 -20 24 -12 24 8 C14 14 -14 14 -24 8 Z" fill={P.cream} {...line} />
-        <path d="M-10 -17 C-8 -10 -8 -6 -9 -2 M0 -20 C1 -12 1 -8 0 -3 M10 -17 C8 -10 8 -6 9 -2" fill="none" {...line} strokeWidth={2.2} />
+        <path d="M-14 -2 L0 28 L14 -2 Z" fill={P.butter} {...line} />
+        <path d="M-9 8 L9 8 M-5 16 L5 16 M-6 -2 L5 22 M6 -2 L-5 22" fill="none" {...line} strokeWidth={1.8} />
+        <path
+          d="M-18 -1 C-24 -6 -19 -17 -10 -15 C-8 -27 8 -27 10 -15 C19 -17 24 -6 18 -1 C10 3 -10 3 -18 -1 Z"
+          fill={P.pink}
+          {...line}
+        />
+        <path d="M2 -27 C2 -32 5 -35 8 -36" fill="none" {...line} strokeWidth={2} />
+        <circle cx={1} cy={-24} r={4.5} fill={P.red} {...line} strokeWidth={2.4} />
       </g>
     ),
   },
   {
-    id: "strawberry",
-    label: "Strawberry",
-    render: () => (
-      <g>
-        <path d="M0 22 C-14 14 -22 0 -20 -8 C-18 -16 -8 -16 0 -12 C8 -16 18 -16 20 -8 C22 0 14 14 0 22 Z" fill={P.red} {...line} />
-        <path d="M-12 -14 L-6 -22 L0 -15 L6 -22 L12 -14" fill={P.green} {...line} strokeWidth={2.8} />
-        {[[-8, -2], [6, -4], [-2, 7], [9, 6], [-10, 8], [1, -6]].map(([x, y]) => (
-          <ellipse key={`${x}${y}`} cx={x} cy={y} rx={1.4} ry={2} fill={P.butter} className="solid" />
-        ))}
-      </g>
-    ),
-  },
-  {
-    id: "boba",
-    label: "Boba tea",
+    id: "milk-tea",
+    label: "Milk tea",
     render: () => (
       <g>
         <path d="M4 -30 L10 -44" fill="none" stroke={INK} strokeWidth={6} strokeLinecap="round" />
@@ -142,6 +143,21 @@ export const FOODS = [
         {[[-6, 18], [2, 19], [8, 15], [-3, 12], [5, 9]].map(([x, y]) => (
           <circle key={`${x}${y}`} cx={x} cy={y} r={3} fill={INK} className="solid" />
         ))}
+      </g>
+    ),
+  },
+  {
+    id: "cake",
+    label: "Cake",
+    render: () => (
+      <g>
+        {/* a slice: front face, side face, frosted top */}
+        <path d="M-22 -4 L12 -4 L12 18 L-22 18 Z" fill={P.cream} {...line} />
+        <path d="M12 -4 L22 -14 L22 8 L12 18 Z" fill={P.cream} {...line} />
+        <path d="M-22 -4 L-10 -14 L22 -14 L12 -4 Z" fill={P.white} {...line} />
+        <path d="M-22 7 L12 7 L22 -3" fill="none" stroke={P.red} strokeWidth={3} strokeLinecap="round" />
+        <circle cx={4} cy={-16} r={5} fill={P.red} {...line} strokeWidth={2.4} />
+        <path d="M2 -21 L4 -24 L7 -21" fill="none" stroke={P.green} strokeWidth={2.2} strokeLinecap="round" />
       </g>
     ),
   },

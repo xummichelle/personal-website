@@ -127,3 +127,12 @@ export function MailIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function UserIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx={16} cy={11} r={5} />
+      <path d="M6 27c1-6 5-9 10-9s9 3 10 9" />
+    </svg>
+  );
+}

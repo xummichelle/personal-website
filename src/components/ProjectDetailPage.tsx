@@ -17,7 +17,7 @@ export function ProjectDetailPage({ category, slug }: { category: Category; slug
 
       <article className="mt-6 rounded-[32px] bg-card p-6 shadow-[0_20px_40px_-24px_rgba(31,34,53,0.5)] sm:p-12">
         <p className="text-xs font-semibold tracking-[0.08em] text-ink-soft uppercase">{project.date}</p>
-        <h1 className="mt-2 font-serif text-4xl leading-tight font-semibold tracking-tight sm:text-6xl">{project.title}</h1>
+        <h1 className="mt-2 font-hand text-4xl leading-tight sm:text-6xl">{project.title}</h1>
 
         <ul className="mt-4 flex flex-wrap gap-2">
           {project.tags.map((t) => (
@@ -44,7 +44,7 @@ export function ProjectDetailPage({ category, slug }: { category: Category; slug
         )}
 
         {project.draft && (
-          <p className="mt-6 -rotate-1 rounded-2xl border-[1.5px] border-dashed border-ink bg-butter/50 px-4 py-3 font-hand text-2xl">
+          <p className="mt-6 -rotate-1 rounded-2xl border-[1.5px] border-dashed border-ink bg-butter/50 px-4 py-3 text-lg font-semibold">
             ✏️ This page is still being sketched out. More soon!
           </p>
         )}
@@ -66,7 +66,7 @@ export function ProjectDetailPage({ category, slug }: { category: Category; slug
         <div className="mt-8 space-y-8">
           {project.sections.map((s) => (
             <section key={s.heading}>
-              <h2 className="font-serif text-2xl font-semibold sm:text-3xl">{s.heading}</h2>
+              <h2 className="font-hand text-3xl sm:text-4xl">{s.heading}</h2>
               {s.paragraphs?.map((p) => (
                 <p key={p} className="mt-2 leading-relaxed text-ink-soft sm:text-lg">
                   {p}
@@ -89,11 +89,11 @@ export function ProjectDetailPage({ category, slug }: { category: Category; slug
 
       {project.gallery && project.gallery.length > 0 && (
         <section className="mt-12">
-          <h2 className="text-center font-serif text-4xl font-semibold">Gallery</h2>
+          <h2 className="text-center font-hand text-5xl">Gallery</h2>
           <div className="mt-8 columns-1 gap-6 sm:columns-2">
             {project.gallery.map((g) => (
               <figure key={g.src + g.alt} className="mb-6 break-inside-avoid">
-                {g.caption && <figcaption className="mb-2 font-hand text-2xl">{g.caption}</figcaption>}
+                {g.caption && <figcaption className="mb-2 text-lg font-semibold">{g.caption}</figcaption>}
                 <div className="overflow-hidden rounded-[20px] bg-card p-2 shadow-[0_14px_30px_-18px_rgba(31,34,53,0.5)]">
                   <Image src={g.src} alt={g.alt} width={g.width} height={g.height} sizes="(min-width: 640px) 440px, 100vw" className="h-auto w-full rounded-[14px]" />
                 </div>
