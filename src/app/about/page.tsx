@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
-import { Paws } from "@/components/Decorations";
+import { CrayonBacking } from "@/components/Decorations";
 import { GitHubIcon, LinkedInIcon, MailIcon } from "@/components/icons";
 import { SITE } from "@/data/site";
 
@@ -28,24 +28,23 @@ export default function AboutPage() {
               work is a mix of all three!
             </p>
             <p>
-              Right now I&apos;m a game developer intern at the Bioadaptive Interface Lab, building VR and exercise
-              games for research. Before that I was a software developer intern at RBC four times. I&apos;m also a game
-              jam enthusiast, a crocheter and an illustrator.
+              Right now I&apos;m a software developer intern at Clio. I just completed an internship at the Bioadaptive
+              Interface Lab, building VR and exercise games for research, and before that I was a software developer
+              intern at RBC four times. I&apos;m also a game jam enthusiast, a crocheter and an illustrator.
             </p>
           </div>
-          <ul className="mt-8 flex flex-wrap gap-6">
+          <ul className="mt-8 flex items-center gap-4">
             {CONTACTS.map(({ href, label, icon: Icon }) => (
               <li key={href}>
                 <a
                   href={href}
                   target={href.startsWith("http") ? "_blank" : undefined}
                   rel="noreferrer"
-                  className="group flex flex-col items-center gap-2 text-sm font-semibold"
+                  aria-label={label}
+                  title={label}
+                  className="grid h-12 w-12 place-items-center rounded-full bg-paper-deep text-white transition hover:-translate-y-1 hover:bg-blue"
                 >
-                  <span className="grid h-12 w-12 place-items-center rounded-full bg-paper-deep text-white transition group-hover:-translate-y-1 group-hover:bg-blue">
-                    <Icon className="h-6 w-6" />
-                  </span>
-                  <span className="underline-offset-4 group-hover:underline">{label}</span>
+                  <Icon className="h-6 w-6" />
                 </a>
               </li>
             ))}
@@ -53,19 +52,19 @@ export default function AboutPage() {
         </div>
 
         <div className="fade-in relative mx-auto w-full max-w-sm md:max-w-none" style={{ animationDelay: "0.1s" }}>
-          <div className="overflow-hidden rounded-[32px] bg-card p-3 shadow-[0_20px_40px_-20px_rgba(31,34,53,0.45)]">
+          {/* photo with an offset layer of crayon colour underneath, like mimi's misprinted fill */}
+          <div className="relative">
+            <CrayonBacking className="translate-x-4 translate-y-4 -rotate-2 sm:translate-x-6 sm:translate-y-5" />
             <Image
               src="/me.webp"
               alt="Michelle Xu"
               width={383}
               height={383}
               loading="eager"
-              className="aspect-square w-full rounded-[24px] object-cover"
+              className="relative aspect-square w-full rounded-[28px] border-[2.5px] border-ink object-cover"
             />
           </div>
         </div>
-
-        <Paws className="absolute bottom-0 left-2 h-16 w-24 opacity-90 sm:left-6" />
       </section>
     </main>
   );

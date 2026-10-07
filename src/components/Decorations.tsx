@@ -10,21 +10,19 @@ export function Scallop({ color = "var(--sheet)", className = "" }: { color?: st
   );
 }
 
-/** A couple of little paw prints. */
-export function Paws({ className = "" }: { className?: string }) {
-  const paw = (x: number, y: number, r: number, s: number) => (
-    <g transform={`translate(${x} ${y}) rotate(${r}) scale(${s})`}>
-      <ellipse cx={0} cy={6} rx={9} ry={8} />
-      <ellipse cx={-10} cy={-6} rx={3.6} ry={4.6} />
-      <ellipse cx={-3.5} cy={-12} rx={3.6} ry={4.6} />
-      <ellipse cx={3.5} cy={-12} rx={3.6} ry={4.6} />
-      <ellipse cx={10} cy={-6} rx={3.6} ry={4.6} />
-    </g>
-  );
+/**
+ * A slightly offset patch of waxy crayon colour, Woset-style, to sit behind a
+ * photo or card. Put it inside a `relative` parent before the content.
+ */
+export function CrayonBacking({ color = "var(--blue)", className = "" }: { color?: string; className?: string }) {
   return (
-    <svg viewBox="0 0 120 80" className={className} fill="white" aria-hidden>
-      {paw(30, 34, -20, 1.4)}
-      {paw(88, 54, 15, 1.1)}
+    <svg
+      viewBox="0 0 400 400"
+      preserveAspectRatio="none"
+      className={`pointer-events-none absolute inset-0 h-full w-full overflow-visible ${className}`}
+      aria-hidden
+    >
+      <rect x={0} y={0} width={400} height={400} rx={34} style={{ fill: color }} filter="url(#crayon-fill)" />
     </svg>
   );
 }

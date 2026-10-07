@@ -92,6 +92,58 @@ body {
   padding-bottom: calc(var(--nav-height) + 130px);
 }
 
+/* ── Scrap-paper note (home page) ─────────────────────────────────────── */
+
+/* The wrapper carries the shadow so it follows the torn clip-path below. */
+.scrap-note-wrap {
+  filter: drop-shadow(0 8px 10px rgb(31 34 53 / 0.14)) drop-shadow(0 1px 1px rgb(31 34 53 / 0.12));
+}
+
+.scrap-note {
+  /* one ruled line per line of text */
+  --lh: 2.05rem;
+  --rule: #c9d6ee;
+  line-height: var(--lh);
+  background-color: #fffef9;
+  background-image:
+    linear-gradient(to right, transparent 1.6rem, #efb3b3 1.6rem, #efb3b3 calc(1.6rem + 1.5px), transparent calc(1.6rem + 1.5px)),
+    linear-gradient(to bottom, transparent calc(var(--lh) - 1px), var(--rule) calc(var(--lh) - 1px));
+  background-size:
+    100% 100%,
+    100% var(--lh);
+  background-origin: border-box, content-box;
+  /* torn bottom edge */
+  clip-path: polygon(
+    0 0, 100% 0, 100% calc(100% - 9px),
+    96% calc(100% - 3px), 92% calc(100% - 8px), 88% calc(100% - 1px), 84% calc(100% - 7px),
+    79% calc(100% - 2px), 75% calc(100% - 9px), 70% calc(100% - 3px), 66% calc(100% - 6px),
+    61% 100%, 57% calc(100% - 8px), 52% calc(100% - 2px), 48% calc(100% - 7px), 43% calc(100% - 1px),
+    39% calc(100% - 9px), 34% calc(100% - 3px), 30% calc(100% - 7px), 25% 100%, 21% calc(100% - 6px),
+    16% calc(100% - 2px), 12% calc(100% - 9px), 7% calc(100% - 3px), 3% calc(100% - 7px), 0 calc(100% - 2px)
+  );
+}
+@media (min-width: 40rem) {
+  .scrap-note {
+    --lh: 2.45rem;
+    background-image:
+      linear-gradient(to right, transparent 2.5rem, #efb3b3 2.5rem, #efb3b3 calc(2.5rem + 1.5px), transparent calc(2.5rem + 1.5px)),
+      linear-gradient(to bottom, transparent calc(var(--lh) - 1px), var(--rule) calc(var(--lh) - 1px));
+  }
+}
+
+/* a strip of washi tape holding the note down */
+.scrap-tape {
+  position: absolute;
+  top: -0.85rem;
+  left: 50%;
+  z-index: 1;
+  width: 6.5rem;
+  height: 1.7rem;
+  transform: translateX(-50%) rotate(-4deg);
+  background: color-mix(in srgb, var(--butter) 75%, transparent);
+  clip-path: polygon(2% 0, 98% 4%, 100% 30%, 97% 55%, 100% 80%, 97% 100%, 3% 96%, 0 70%, 3% 45%, 0 20%);
+}
+
 /* ── Project cards: lift + crayon outline on hover ────────────────────── */
 
 .crayon-card {

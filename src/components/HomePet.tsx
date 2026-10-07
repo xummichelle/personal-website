@@ -61,14 +61,34 @@ export function HomePet() {
   const handY = pct(ANCHORS.leftHand.y - 20, VIEWBOX.height);
 
   return (
-    // Two columns on desktop: caption on the left, the pet (with Save under it) on the right.
-    <section aria-labelledby="pet-heading" className="mt-6 grid items-start gap-x-12 lg:mt-8 lg:grid-cols-2">
-      <p className="fade-in max-w-xl text-xl leading-relaxed sm:text-2xl sm:leading-relaxed" style={{ animationDelay: "0.1s" }}>
-        will you take care of {PET_NAME} while i&apos;m busy? their favourite food is <Pick>{name(FOODS, draft.food)}</Pick>, their
-        favourite toy is {article(toy)} <Pick>{toy}</Pick>, and they love wearing their <Pick>{name(HATS, draft.hat)}</Pick>.
-      </p>
+    // Two columns on desktop: the note with Save under it on the left, the pet on the right.
+    <section aria-labelledby="pet-heading" className="mt-6 grid items-start gap-x-12 lg:mt-8 lg:grid-cols-2 lg:grid-rows-[auto_1fr]">
+      {/* a note left on a scrap of torn notebook paper, taped down */}
+      <div className="fade-in max-w-xl" style={{ animationDelay: "0.1s" }}>
+        <div className="scrap-note-wrap relative mt-3 -rotate-[1.5deg]">
+          <span className="scrap-tape" aria-hidden />
+          <div className="scrap-note pt-6 pr-6 pb-6 pl-10 text-xl sm:pr-10 sm:pl-14 sm:text-2xl">
+            <p>
+              will you take care of {PET_NAME} while i&apos;m busy? their favourite food is{" "}
+              <Pick slot="food" onCycle={(d) => cycle("food", d)}>
+                {name(FOODS, draft.food)}
+              </Pick>
+              , their favourite toy is {article(toy)}{" "}
+              <Pick slot="toy" onCycle={(d) => cycle("toy", d)}>
+                {toy}
+              </Pick>
+              , and they love wearing their{" "}
+              <Pick slot="hat" onCycle={(d) => cycle("hat", d)}>
+                {name(HATS, draft.hat)}
+              </Pick>
+              .
+            </p>
+            <p className="text-right font-hand">– michelle</p>
+          </div>
+        </div>
+      </div>
 
-      <div className="mx-auto mt-10 w-full max-w-md lg:mt-0">
+      <div className="mx-auto mt-10 w-full max-w-md lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0">
         <div className="relative">
           <h2 id="pet-heading" className="mb-2 text-center font-hand text-3xl">
             {PET_NAME}
@@ -96,28 +116,65 @@ export function HomePet() {
             <PooPile poos={poos} size={44} />
           </div>
         </div>
+      </div>
 
-        <div className="mt-6 flex flex-col items-center gap-2">
-          <button
-            type="button"
-            onClick={onSave}
-            disabled={!isDirty && !justSaved}
-            className="pill px-7! py-2.5! cursor-pointer disabled:cursor-default disabled:opacity-40 disabled:hover:bg-card"
-          >
-            {justSaved ? "Saved ♥" : "Save"}
-          </button>
-          <span className="text-xs text-ink-soft" aria-live="polite">
-            {isDirty ? "unsaved changes" : `${PET_NAME} will remember this look`}
-          </span>
-        </div>
+      {/* Save: under the note on desktop, under the pet on phones */}
+      <div className="mt-6 flex flex-col items-center gap-2 lg:col-start-1 lg:row-start-2 lg:mt-10 lg:flex-row lg:items-center lg:gap-4">
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={!isDirty && !justSaved}
+          className="pill px-7! py-2.5! cursor-pointer disabled:cursor-default disabled:opacity-40 disabled:hover:bg-card"
+        >
+          {justSaved ? "Saved ♥" : "Save"}
+        </button>
+        <span className="text-xs text-ink-soft" aria-live="polite">
+          {isDirty ? "unsaved changes" : `${PET_NAME} will remember this look`}
+        </span>
       </div>
     </section>
   );
 }
 
-/** A highlighted pick inside the caption. */
-function Pick({ children }: { children: string }) {
-  return <strong className="font-bold text-blue underline decoration-butter decoration-[5px] underline-offset-[3px]">{children}</strong>;
+/**
+ * A highlighted pick inside the note, with faint ‹ › arrows either side so the
+ * favourites can be changed right from the text. Clicking the word itself
+ * moves to the next option. Only the arrow being pointed at lights up.
+ */
+function Pick({ children, slot, onCycle }: { children: string; slot: string; onCycle: (dir: 1 | -1) => void }) {
+  return (
+    <span className="whitespace-nowrap">
+      <PickArrow dir="left" label={`Previous ${slot}`} onClick={() => onCycle(-1)} />
+      <button
+        type="button"
+        onClick={() => onCycle(1)}
+        title={`Change ${slot}`}
+        className="peer/word cursor-pointer font-bold text-blue underline decoration-butter decoration-[5px] underline-offset-[3px] transition-colors hover:decoration-blue/40"
+      >
+        {children}
+      </button>
+      <PickArrow dir="right" label={`Next ${slot}`} onClick={() => onCycle(1)} />
+    </span>
+  );
+}
+
+function PickArrow({ dir, label, onClick }: { dir: "left" | "right"; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={`cursor-pointer align-middle text-ink opacity-25 transition hover:text-blue hover:opacity-100 active:scale-90 ${
+        // the word itself steps forward, so hovering it lights up only the › arrow
+        dir === "left" ? "mr-0.5" : "ml-0.5 peer-hover/word:text-blue peer-hover/word:opacity-100"
+      }`}
+    >
+      <svg viewBox="0 0 24 24" className="inline-block h-[0.7em] w-[0.7em] -translate-y-[0.06em]" aria-hidden>
+        <path d={CHEVRON[dir]} fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </button>
+  );
 }
 
 // Wide, open chevrons on a 24×24 grid.
