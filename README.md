@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Michelle Xu — portfolio
 
-## Getting Started
-
-First, run the development server:
+A Next.js portfolio with a little pet that lives on the nav bar.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install     # first time only
+npm run dev     # http://localhost:3000
+npm run build   # production build check
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Where things live
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| What | File |
+| --- | --- |
+| Colours (CSS variables) | `src/app/globals.css` → `:root` |
+| Fonts (Fraunces / DM Sans / Schoolbell) | `src/app/layout.tsx` |
+| Home page text + photo | `src/app/page.tsx`, `public/me.webp` |
+| Projects (cards + detail pages) | `src/data/projects.ts`, images in `public/projects/<slug>/` |
+| Links (email, LinkedIn, GitHub, resume) | `src/data/site.ts`, `public/resume.pdf` |
+| Nav bar | `src/components/NavBar.tsx` |
+| Pet drawing + animations | `src/pet/Pet.tsx`, keyframes at the bottom of `globals.css` |
+| Hats / toys / foods | `src/pet/accessories.tsx` |
+| Pet name, PNG swap, anchor points | `src/pet/config.ts` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Swapping in your own pet drawing
 
-## Learn More
+1. Save your drawing as a transparent PNG in `public/pet/` (e.g. `public/pet/pet.png`).
+   It is drawn into a 200 × 220 box, so that aspect ratio fits best.
+2. In `src/pet/config.ts`, set `PET_IMAGE = "/pet/pet.png"`.
+3. Adjust `ANCHORS` in the same file so hats land on the head (`head`), the toy sits in
+   the left hand (`leftHand`) and the food sits in the right hand (`rightHand`). The
+   coordinates use the same 200 × 220 box.
 
-To learn more about Next.js, take a look at the following resources:
+Accessories can be PNGs too. In `src/pet/accessories.tsx`, replace an item's `render`
+with `image: { src: "/pet/crown.png", width: 60, height: 40 }`. The image is centred
+on its anchor point.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+When `PET_IMAGE` is set, the generated face expressions (eating, straining, happy eyes)
+switch off, but every animation (shake, squat, jump, spin, bath, walking jitter) still
+works because those animate the whole drawing.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How the pet works
 
-## Deploy on Vercel
+- **Customising (home page):** the dropdowns change a *draft* look. **Save** stores it in
+  `localStorage`, and leaving the page (or closing the tab) also saves whatever is picked.
+- **Nav bar pet:** on every other page the pet shrinks onto the bar and wanders back and
+  forth wearing the saved look. Clicking a nav link makes it jump or spin, and clicking
+  the pet makes it hop.
+- **Care buttons:**
+  - **Feed:** the pet eats its favourite food bite by bite.
+  - **Poo:** the pet leaves a poo behind (max 3). Two or more make it sad.
+  - **Bathe:** a bath that washes the poos away.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Still to fill in
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `craftyly` and `crochet-booth` in `src/data/projects.ts` are placeholders (`draft: true`).
+- Project images were pulled from the portfolio PDF. Add more to each project's `gallery`.

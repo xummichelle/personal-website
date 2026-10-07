@@ -1,69 +1,73 @@
 import Image from "next/image";
+import { HomePet } from "@/components/HomePet";
+import { Paws, Scallop } from "@/components/Decorations";
+import { GitHubIcon, LinkedInIcon, MailIcon } from "@/components/icons";
+import { SITE } from "@/data/site";
+
+const CONTACTS = [
+  { href: `mailto:${SITE.email}`, label: SITE.email, icon: MailIcon },
+  { href: SITE.linkedin, label: "LinkedIn", icon: LinkedInIcon },
+  { href: SITE.github, label: "GitHub", icon: GitHubIcon },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <main className="flex flex-1 flex-col">
+      <section className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-5 pt-14 pb-16 sm:px-8 md:grid-cols-[1.15fr_1fr] md:pt-20">
+        <div className="fade-in">
+          <h1 className="font-serif text-6xl leading-[0.95] font-semibold tracking-tight sm:text-7xl lg:text-8xl">
+            Michelle Xu
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+          <p className="mt-3 font-hand text-2xl text-blue sm:text-3xl">programmer · game dev · artist</p>
+          <div className="mt-6 max-w-xl space-y-4 text-[1.05rem] leading-relaxed text-ink-soft">
+            <p>
+              I&apos;m a Computer Science + Business double degree student at the University of Waterloo and Wilfrid
+              Laurier University. I&apos;ve loved video games, visual arts and programming since I was a kid, so my
+              work is a mix of all three!
+            </p>
+            <p>
+              Right now I&apos;m a game developer intern at the Bioadaptive Interface Lab, building VR and exercise
+              games for research. Before that I was a software developer intern at RBC four times. I&apos;m also a game
+              jam enthusiast, a crocheter and an illustrator.
+            </p>
+          </div>
+          <ul className="mt-8 flex flex-wrap gap-6">
+            {CONTACTS.map(({ href, label, icon: Icon }) => (
+              <li key={href}>
+                <a
+                  href={href}
+                  target={href.startsWith("http") ? "_blank" : undefined}
+                  rel="noreferrer"
+                  className="group flex flex-col items-center gap-2 text-sm font-semibold"
+                >
+                  <span className="grid h-12 w-12 place-items-center rounded-full bg-paper-deep text-white transition group-hover:-translate-y-1 group-hover:bg-blue">
+                    <Icon className="h-6 w-6" />
+                  </span>
+                  <span className="underline-offset-4 group-hover:underline">{label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+
+        <div className="fade-in relative mx-auto w-full max-w-sm md:max-w-none" style={{ animationDelay: "0.1s" }}>
+          <div className="overflow-hidden rounded-[32px] bg-card p-3 shadow-[0_20px_40px_-20px_rgba(31,34,53,0.45)]">
             <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+              src="/me.webp"
+              alt="Michelle Xu"
+              width={383}
+              height={383}
+              loading="eager"
+              className="aspect-square w-full rounded-[24px] object-cover"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
         </div>
-      </main>
-    </div>
+
+        <Paws className="absolute bottom-0 left-2 h-16 w-24 opacity-90 sm:left-6" />
+      </section>
+
+      <Scallop />
+      <HomePet />
+    </main>
   );
 }

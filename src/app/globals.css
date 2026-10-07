@@ -1,26 +1,383 @@
 @import "tailwindcss";
 
+/* ── Theme ────────────────────────────────────────────────────────────────
+   All site colours live here. Swap these to restyle everything.
+   Blues/whites from the Plume reference, ink + flat accents from Woset. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #c8d6f0; /* page background */
+  --paper-deep: #8ea6dc; /* deeper blue for footers, scallops, buttons */
+  --sheet: #fbfaf6; /* off-white "drawing paper" sections */
+  --card: #ffffff;
+  --ink: #1f2235;
+  --ink-soft: #4f5672;
+  --blue: #6d7fc0;
+  --green: #3e6b4c;
+  --butter: #efdf8a;
+  --plum: #6a4b63;
+  --red: #a8434b;
+  --cloud: #e8eefa;
+  --nav-height: 72px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-sheet: var(--sheet);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-blue: var(--blue);
+  --color-green: var(--green);
+  --color-butter: var(--butter);
+  --color-plum: var(--plum);
+  --color-red: var(--red);
+  --color-cloud: var(--cloud);
+  --font-serif: var(--font-fraunces);
+  --font-sans: var(--font-dm-sans);
+  --font-hand: var(--font-hand);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--paper);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+.font-serif {
+  font-variation-settings: "SOFT" 100;
+}
+
+::selection {
+  background: var(--butter);
+}
+
+/* ── Buttons & boxes ──────────────────────────────────────────────────── */
+
+/* Woset-style outlined pill */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--card);
+  padding: 0.4rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+.pill:hover {
+  background: var(--cloud);
+}
+.pill:active {
+  transform: scale(0.96);
+}
+.pill[aria-current="page"],
+.pill-filled {
+  background: var(--ink);
+  color: var(--card);
+}
+.pill-filled:hover {
+  background: var(--blue);
+}
+
+/* Keeps content clear of the fixed nav bar and the pet walking on it. */
+.page-pad {
+  padding-bottom: calc(var(--nav-height) + 130px);
+}
+
+/* ── Project cards: lift + crayon outline on hover ────────────────────── */
+
+.crayon-card {
+  position: relative;
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 28px;
+  transition:
+    transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1),
+    box-shadow 0.25s ease,
+    border-color 0.15s ease;
+}
+
+/* Two rough, grainy strokes that fade in on hover — like going over the
+   edge with a real crayon. The #crayon filters are defined in SvgDefs. */
+.crayon-card::before,
+.crayon-card::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 4px solid var(--ink);
+  border-radius: 30px;
+  filter: url(#crayon);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.crayon-card::after {
+  inset: -2px -6px -6px -2px;
+  border-width: 3px;
+  border-color: var(--blue);
+  border-radius: 32px 26px 34px 28px;
+  filter: url(#crayon-2);
+}
+
+.crayon-card:hover,
+.crayon-card:focus-visible {
+  transform: translateY(-8px) rotate(-0.6deg);
+  border-color: transparent;
+  box-shadow: 0 18px 30px -12px color-mix(in srgb, var(--ink) 35%, transparent);
+  outline: none;
+}
+.crayon-card:nth-child(even):hover {
+  transform: translateY(-8px) rotate(0.6deg);
+}
+.crayon-card:hover::before,
+.crayon-card:hover::after,
+.crayon-card:focus-visible::before,
+.crayon-card:focus-visible::after {
+  opacity: 1;
+}
+
+/* Woset-style "misprint": flat colour fills knocked slightly off the lines */
+.misprint-fill * {
+  stroke: none !important;
+}
+.misprint-line *:not(.solid) {
+  fill: none !important;
+}
+
+/* ── Pet ──────────────────────────────────────────────────────────────── */
+
+.pet-root {
+  aspect-ratio: 200 / 220;
+}
+.pet-anim,
+.pet-anim > div {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 95%;
+}
+
+/* walking: little side-to-side jitter, legs stepping */
+.pet-walk {
+  animation: pet-waddle 0.42s ease-in-out infinite alternate;
+}
+@keyframes pet-waddle {
+  from { transform: rotate(-7deg) translateY(0); }
+  to { transform: rotate(7deg) translateY(-3px); }
+}
+.pet-leg-l,
+.pet-leg-r {
+  animation: pet-step 0.42s ease-in-out infinite alternate;
+}
+.pet-leg-r {
+  animation-direction: alternate-reverse;
+}
+@keyframes pet-step {
+  from { transform: translateY(0); }
+  to { transform: translateY(-5px); }
+}
+
+.pet-blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pet-blink 4.5s infinite;
+}
+@keyframes pet-blink {
+  0%, 94%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(0.1); }
+}
+
+/* feed: shake while the food moves to the mouth and gets bitten */
+.pet-anim-feed {
+  animation: pet-shake 0.22s ease-in-out 0.5s 9 alternate;
+}
+@keyframes pet-shake {
+  from { transform: rotate(-3deg) scale(1.02, 0.98); }
+  to { transform: rotate(3deg) scale(0.98, 1.02); }
+}
+.pet-food-eat {
+  animation: pet-food-to-mouth 2.6s ease-in-out forwards;
+}
+@keyframes pet-food-to-mouth {
+  0% { transform: translate(0, 0); }
+  18%, 88% { transform: translate(var(--dx), var(--dy)) scale(0.9); opacity: 1; }
+  92% { transform: translate(var(--dx), var(--dy)) scale(0.9); opacity: 0; }
+  96% { transform: translate(0, 0); opacity: 0; }
+  100% { transform: translate(0, 0); opacity: 1; }
+}
+.pet-bite {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pet-bite 0.18s ease-out both;
+}
+@keyframes pet-bite {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+.pet-chomp {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pet-chomp 0.22s ease-in-out infinite alternate;
+}
+@keyframes pet-chomp {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(0.25); }
+}
+.pet-crumb {
+  opacity: 0;
+  animation: pet-crumb 0.7s ease-in forwards;
+}
+@keyframes pet-crumb {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  100% { opacity: 0; transform: translate(4px, 50px) rotate(90deg); }
+}
+
+/* poo: squat, strain, then relief */
+.pet-anim-poo {
+  animation: pet-squat 1.7s ease-in-out;
+}
+@keyframes pet-squat {
+  0% { transform: scale(1, 1); }
+  15%, 50% { transform: scale(1.1, 0.86); }
+  25%, 40% { transform: scale(1.12, 0.84) translateX(-2px); }
+  32% { transform: scale(1.12, 0.84) translateX(2px); }
+  62% { transform: scale(0.92, 1.1) translateY(-8px); }
+  78%, 100% { transform: scale(1, 1); }
+}
+.pet-strain {
+  animation: pet-flash 0.3s steps(2) 3;
+}
+@keyframes pet-flash {
+  50% { opacity: 0; }
+}
+
+/* bathe: tub pops in, pet wiggles, bubbles rise, sparkles */
+.pet-anim-bathe > div {
+  animation: pet-wiggle 0.3s ease-in-out 0.3s 7 alternate;
+}
+@keyframes pet-wiggle {
+  from { transform: rotate(-5deg); }
+  to { transform: rotate(5deg); }
+}
+.pet-bath {
+  transform-box: view-box;
+  transform-origin: 50% 100%;
+  animation: pet-tub 2.8s ease-in-out forwards;
+}
+@keyframes pet-tub {
+  0% { transform: translateY(80px); opacity: 0; }
+  12%, 85% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(80px); opacity: 0; }
+}
+.pet-bubble {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pet-bubble 1.2s ease-out infinite;
+}
+@keyframes pet-bubble {
+  0% { transform: translateY(0) scale(0.4); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-120px) scale(1.2); opacity: 0; }
+}
+.pet-sparkle {
+  opacity: 0;
+  animation: pet-sparkle 0.8s ease-in-out 1.9s 2 alternate;
+}
+@keyframes pet-sparkle {
+  to { opacity: 1; }
+}
+
+/* nav clicks: jump or spin */
+.pet-anim-jump {
+  animation: pet-jump 0.7s cubic-bezier(0.3, 0, 0.4, 1);
+}
+@keyframes pet-jump {
+  0% { transform: scale(1, 1); }
+  15% { transform: scale(1.15, 0.82); }
+  45% { transform: translateY(-38%) scale(0.92, 1.1); }
+  80% { transform: translateY(0) scale(1.1, 0.9); }
+  100% { transform: scale(1, 1); }
+}
+.pet-anim-spin {
+  animation: pet-spin 0.8s cubic-bezier(0.4, 0, 0.3, 1);
+}
+@keyframes pet-spin {
+  0% { transform: rotate(0) translateY(0); }
+  40% { transform: rotate(180deg) translateY(16%); }
+  100% { transform: rotate(360deg) translateY(0); }
+}
+.pet-hearts {
+  animation: pet-hearts 0.8s ease-out forwards;
+}
+@keyframes pet-hearts {
+  from { transform: translateY(10px); opacity: 0; }
+  30% { opacity: 1; }
+  to { transform: translateY(-20px); opacity: 0; }
+}
+
+/* the pet shrinks down onto the nav bar when leaving home... */
+.pet-arrive {
+  animation: pet-arrive 0.9s cubic-bezier(0.3, 1.3, 0.5, 1) both;
+  transform-origin: 50% 100%;
+}
+@keyframes pet-arrive {
+  0% { transform: translateY(-40vh) scale(3); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(0) scale(1); }
+}
+/* ...and grows back when you come home */
+.pet-grow {
+  animation: pet-grow 0.7s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  transform-origin: 50% 100%;
+}
+@keyframes pet-grow {
+  from { transform: translateY(30vh) scale(0.3); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.poo-pop {
+  animation: poo-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  transform-origin: 50% 100%;
+}
+@keyframes poo-pop {
+  from { transform: scale(0) translateY(-10px); }
+  to { transform: scale(1); }
+}
+.stink {
+  animation: stink 1.6s ease-in-out infinite;
+}
+@keyframes stink {
+  0% { transform: translateY(4px); opacity: 0; }
+  40% { opacity: 0.8; }
+  100% { transform: translateY(-10px); opacity: 0; }
+}
+
+.fade-in {
+  animation: fade-in 0.4s ease both;
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
