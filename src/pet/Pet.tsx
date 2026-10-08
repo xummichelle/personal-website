@@ -3,7 +3,8 @@
 import { useId, type CSSProperties, type ReactNode } from "react";
 import { ANCHORS, PET_IMAGE, VIEWBOX } from "./config";
 import { AccessoryArt, FOODS, HATS, INK, Misprint, PALETTE, TOYS, findAccessory, type Accessory } from "./accessories";
-import type { Look, PetAction } from "./PetProvider";
+import type { Look, Needs, PetAction } from "./PetProvider";
+import { BowlArt, BrokenHeartArt } from "@/components/icons";
 
 const WHITE = PALETTE.white;
 const SKIN = PALETTE.blue;
@@ -16,7 +17,7 @@ const LISTS: Record<keyof Look, readonly Accessory[]> = { hat: HATS, toy: TOYS, 
 
 /** Where items fly in from / out to (pet-box units). Hats swoop sideways, held items scroll vertically. */
 const SLIDE: Record<keyof Look, (dir: 1 | -1) => { from: [number, number]; to: [number, number] }> = {
-  hat: (d) => ({ from: [d * 130, -40], to: [-d * 130, -40] }),
+  hat: (d) => ({ from: [-d * 130, -40], to: [d * 130, -40] }),
   toy: (d) => ({ from: [0, -d * 55], to: [0, d * 55] }),
   food: (d) => ({ from: [0, -d * 55], to: [0, d * 55] }),
 };
@@ -26,15 +27,19 @@ type Props = {
   action: PetAction | null;
   swap?: Swap | null;
   walking?: boolean;
-  sad?: boolean;
+  /** Shows a thought bubble (hungry / unhappy), dirt and stink lines, and a sad face. */
+  needs?: Needs;
   className?: string;
 };
 
+const CONTENT: Needs = { hungry: false, unhappy: false, dirty: false };
+
 /**
  * The pet: body, face, accessories in its hands and on its head, plus the
- * overlays for each action (eating, pooping, bath time, jumping, spinning).
+ * overlays for each action (eating, pooping, cleaning, bath time, jumping,
+ * spinning) and for its needs (thought bubble, dirt, stink lines).
  */
-export function Pet({ look, action, swap = null, walking = false, sad = false, className = "" }: Props) {
+export function Pet({ look, action, swap = null, walking = false, needs = CONTENT, className = "" }: Props) {
   const maskId = useId();
   const type = action?.type;
   const hat = findAccessory(HATS, look.hat);
@@ -81,8 +86,9 @@ export function Pet({ look, action, swap = null, walking = false, sad = false, c
               {PET_IMAGE ? (
                 <image href={PET_IMAGE} x={0} y={0} width={VIEWBOX.width} height={VIEWBOX.height} />
               ) : (
-                <Body type={type} sad={sad} walking={walking} />
+                <Body type={type} sad={needs.unhappy} walking={walking} />
               )}
+              {needs.dirty && type !== "bathe" && <Dirt />}
 
               {/* toy in the left hand, drawn behind the paw so it looks held */}
               <g transform={`translate(${leftHand.x - 2} ${leftHand.y - 20})`}>
@@ -114,7 +120,9 @@ export function Pet({ look, action, swap = null, walking = false, sad = false, c
             {type === "feed" && <Crumbs />}
             {type === "poo" && <StrainMarks />}
             {type === "bathe" && <Bath />}
-            {(type === "jump" || type === "spin") && <Hearts />}
+            {(type === "jump" || type === "spin" || type === "clean") && <Hearts />}
+            {needs.dirty && type !== "bathe" && <StinkLines />}
+            {!type && <MoodBubble needs={needs} />}
           </svg>
         </div>
       </div>
@@ -151,7 +159,7 @@ function SlideSwap({ slot, swap, current }: { slot: keyof Look; swap: Swap | nul
  * tiny eyes up on the snout and a few freckles.
  */
 function Body({ type, sad, walking }: { type?: string; sad: boolean; walking: boolean }) {
-  const happy = type === "bathe" || type === "jump" || type === "spin";
+  const happy = type === "bathe" || type === "jump" || type === "spin" || type === "clean";
   return (
     <g>
       {/* ears, rising from the back of the head */}
@@ -318,6 +326,66 @@ function Bath() {
         <path d="M28 54 l4 10 l10 4 l-10 4 l-4 10 l-4 -10 l-10 -4 l10 -4 Z" />
         <path d="M170 40 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" />
       </g>
+    </g>
+  );
+}
+
+/** Muddy smudges on mimi when she's overdue for a bath. */
+function Dirt() {
+  return (
+    <g fill="#8a6248" opacity={0.45}>
+      <ellipse cx={82} cy={150} rx={9} ry={6} transform="rotate(-20 82 150)" />
+      <ellipse cx={108} cy={168} rx={6} ry={4} />
+      <ellipse cx={70} cy={112} rx={5} ry={3.5} transform="rotate(30 70 112)" />
+      <circle cx={118} cy={140} r={2.5} />
+    </g>
+  );
+}
+
+/** Wavy stink lines rising off a dirty mimi. */
+function StinkLines() {
+  return (
+    <g fill="none" stroke="#6f7a4a" strokeWidth={3} strokeLinecap="round" opacity={0.75}>
+      {[
+        [28, 120, 0],
+        [40, 82, 0.5],
+        [176, 126, 0.25],
+        [166, 150, 0.8],
+      ].map(([x, y, d]) => (
+        <path key={`${x}${y}`} className="stink" style={{ animationDelay: `${d}s` }} d={`M${x} ${y} c-6 -6 6 -10 0 -16 c-6 -6 6 -10 0 -16`} />
+      ))}
+    </g>
+  );
+}
+
+/**
+ * A little thought bubble showing what mimi wants: a rice bowl when hungry,
+ * a broken heart when unhappy (poo lying around). Alternates if both.
+ */
+function MoodBubble({ needs }: { needs: Needs }) {
+  const icons = [needs.hungry && "hungry", needs.unhappy && "unhappy"].filter(Boolean) as ("hungry" | "unhappy")[];
+  if (icons.length === 0) return null;
+  return (
+    <g className="mood-bubble" style={{ color: INK }}>
+      <circle cx={158} cy={50} r={3} fill="white" stroke={INK} strokeWidth={2} />
+      <circle cx={166} cy={38} r={5} fill="white" stroke={INK} strokeWidth={2} />
+      <path
+        d="M162 18 C158 6 172 -2 180 4 C186 -6 202 -2 202 8 C212 8 214 22 206 27 C210 36 198 42 190 37 C184 44 170 42 168 34 C158 34 154 24 162 18 Z"
+        fill="white"
+        stroke={INK}
+        strokeWidth={2.5}
+        strokeLinejoin="round"
+      />
+      {icons.map((icon, i) => (
+        <g
+          key={icon}
+          transform="translate(171 4) scale(0.95)"
+          className={icons.length > 1 ? "mood-icon-cycle" : undefined}
+          style={icons.length > 1 ? { animationDelay: `${-i * 2}s` } : undefined}
+        >
+          {icon === "hungry" ? <BowlArt /> : <BrokenHeartArt />}
+        </g>
+      ))}
     </g>
   );
 }

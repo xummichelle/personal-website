@@ -42,17 +42,27 @@ works because those animate the whole drawing.
 
 ## How the pet works
 
-- **Customising (home page):** the carousel arrows around the pet (‹ › for the hat, ▲ ▼ beside each hand) change a *draft* look. **Save** stores it in
-  `localStorage`, and leaving the page (or closing the tab) also saves whatever is picked.
+- **Customising (home page):** the carousel arrows around the pet (‹ › for the hat, ▲ ▼ beside each
+  hand), or the little ‹ › arrows in the note, change mimi's look. Every change is saved to
+  `localStorage` straight away, so it's still there after a reload or on other pages.
 - **Nav bar pet:** on every other page the pet shrinks onto the bar and wanders back and
-  forth wearing the saved look. Clicking a nav link makes it jump or spin, and clicking
+  forth wearing the same look. Clicking a nav link makes it jump or spin, and clicking
   the pet makes it hop.
-- **Care buttons:**
-  - **Feed:** the pet eats its favourite food bite by bite.
-  - **Poo:** the pet leaves a poo behind (max 3). Two or more make it sad.
-  - **Bathe:** a bath that washes the poos away.
+- **Tamagotchi care:** mimi has three needs, each fixed by a button in the middle of the nav bar:
+  - **Hungry** (rice bowl in a thought bubble) → **Feed**: mimi eats her favourite food bite by bite.
+  - **Unhappy** (broken heart in a thought bubble) → **Clean up**: mimi poops on her own every
+    minute or so, and is unhappy (sad face) while any poo is lying around. Clean flushes it away.
+  - **Dirty** (mud smudges + stink lines) → **Bathe**.
 
-## Still to fill in
+  The timings live in `CARE` in `src/pet/PetProvider.tsx`. When she last ate / bathed is saved,
+  so coming back later finds a hungry, smelly mimi.
 
-- `craftyly` and `crochet-booth` in `src/data/projects.ts` are placeholders (`draft: true`).
-- Project images were pulled from the portfolio PDF. Add more to each project's `gallery`.
+- **To-do list:** the home page note has a "p.s." checklist (feed, clean up, bath, walk through the
+  portfolio). Each line ticks itself off when the visitor does it, from the nav bar or by clicking the
+  line, and is saved in `localStorage`. Finishing the list makes mimi do a happy spin.
+
+## Adding a project
+
+Add an entry to `PROJECTS` in `src/data/projects.ts` and put its images in
+`public/projects/<slug>/`. Set `draft: true` to show a "still being sketched out" note on its
+page, and `coverFit: "contain"` for covers that shouldn't be cropped (like a logo).

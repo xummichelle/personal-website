@@ -10,7 +10,10 @@ export type Img = { src: string; width: number; height: number; alt: string; cap
 
 export type Project = {
   slug: string;
+  /** The list this project belongs to; its page lives under that list's URL. */
   category: Category;
+  /** Also show the card in these other lists (it still links to the one page). */
+  alsoIn?: Category[];
   title: string;
   date: string;
   tags: string[];
@@ -19,6 +22,8 @@ export type Project = {
   /** Soft tint used behind the card art and on tags. */
   color: string;
   cover?: Img;
+  /** "contain" shows the whole cover on the card (e.g. a logo) instead of cropping it. */
+  coverFit?: "cover" | "contain";
   /** Shown on the card when there's no cover image. */
   doodle?: string;
   links?: { label: string; href: string }[];
@@ -39,22 +44,124 @@ const img = (slug: string, file: string, width: number, height: number, alt: str
 export const PROJECTS: Project[] = [
   // ── Tech ────────────────────────────────────────────────────────────────
   {
-    slug: "craftyly",
+    slug: "sparkle",
     category: "tech",
-    title: "Craftyly",
-    date: "Coming soon",
-    tags: ["Web app"],
-    blurb: "A crafty little app. The full write-up is on its way!",
-    color: "#f2dade",
-    doodle: "✂︎ craftyly",
+    alsoIn: ["creative"],
+    title: "sparkle",
+    date: "Fall 2026 · in progress",
+    tags: ["Stage lighting", "Light show", "Live event"],
+    blurb:
+      "The light show I'm programming for the Socratica Symposium, a 2000-attendee community demo day. My first time working with stage lighting!",
+    color: "#f7efc4",
+    doodle: "✨ sparkle",
     draft: true,
     sections: [
       {
         heading: "What is it?",
         paragraphs: [
-          "Craftyly is a work in progress, and the full write-up is coming soon. Check back for the story behind it, how it was built, and what's next.",
+          "Right now, sparkle is the light show I'm programming for the Socratica Symposium, a 2000 attendee community demo day. I've never worked with stage lighting before, but I couldn't resist the chance to work with technology that can impact a physical room.",
+          "This page will fill up as the show comes together, so check back for progress, sketches and (hopefully) footage.",
         ],
       },
+    ],
+  },
+  {
+    slug: "bioadaptive-interface-lab",
+    category: "tech",
+    title: "Bioadaptive Interface Lab: Exercise & VR Rhythm Games",
+    date: "May 2026 – Aug 2026",
+    tags: ["Unity", "C#", "Meta Quest 3", "MediaPipe", "Python"],
+    blurb:
+      "As a game developer and designer intern, I built motion-controlled exercise games and a hand-tracked VR rhythm game for research on movement and play for older adults, from game feel to the tools researchers use.",
+    color: "#d6e4d8",
+    doodle: "🥁 ♪ VR drums",
+    sections: [
+      {
+        heading: "Summary",
+        paragraphs: [
+          "Over the summer I designed and developed games for research into how play can keep people moving: three camera-based exercise games (cornhole, pickleball and air hockey) controlled with full-body pose tracking, and a VR drumming rhythm game for Meta Quest 3 played with your bare hands.",
+          "The players were mostly older adults, many of them new to games and to this kind of tech, so a lot of the work was making controls feel forgiving and obvious, then testing that with real players and iterating.",
+        ],
+      },
+      {
+        heading: "Exercise games",
+        bullets: [
+          "Redesigned the cornhole throw so it reads intent, not accidents: a throw needs a quick, full arm motion from below the hip to above the shoulder, you raise your hand to pick up each new bag, and aiming locks while you throw so arm movement doesn't nudge your aim.",
+          "Built automatic difficulty adjustment: the game notices when someone keeps almost making a throw and adapts the threshold to their range of motion, plus a calibration step at the start.",
+          "Reworked the pickleball physics so every paddle hit calculates a shot that clears the net, fixed serve-state bugs, and tuned swing detection to use both speed and distance so slower movers still feel powerful.",
+          "Studied how commercial motion games onboard players (interactive calibration, clear progress cues, \"raise your hand\" prompts) and built tutorials, animations and particle effects across all three games.",
+          "Took part in co-design playtesting sessions with older adults and turned the feedback into changes, like adjustable difficulty and solo play over multiplayer.",
+        ],
+      },
+      {
+        heading: "VR rhythm game",
+        bullets: [
+          "Built hand-tracked drumming in Unity for Meta Quest 3, with raycast-based hit detection and tunable settings (resting threshold, minimum hit height, cooldown) so the game works whether someone lifts their whole arm or taps with their wrist resting on the table.",
+          "Wrote a Python pipeline that turns a song's MIDI file into note timings on chosen beats of each measure, and fixed audio-sync issues along the way. Adding a new song now takes about 75% less work.",
+          "Refactored one-scene-per-song into a single data-driven level scene backed by a song database, so new levels don't need new code.",
+          "Polished the game feel: notes that burst at the hit line, \"good\" / \"almost\" pop-ups, scorecards, beach and forest environments, sound and volume options, and support for hands and controllers at the same time.",
+          "Added the tools researchers need: a metronome practice mode with pause and timer, CSV logging of every hit and miss for movement-to-music timing metrics, settings menus, and documentation so future developers can keep adding songs.",
+        ],
+      },
+      {
+        heading: "What I took away",
+        paragraphs: [
+          "Designing for people who don't usually play games changed how I think about game feel: the best controls are the ones players never have to think about. I also loved owning games end to end, from the first prototype through playtesting to the tools other people build on.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "craftyly",
+    category: "tech",
+    title: "Craftyly",
+    date: "Jan 2021 – Apr 2021",
+    tags: ["Java", "Android", "Firebase", "Figma"],
+    blurb:
+      "An Android app for artists stuck in art block: swipe through art prompts, save ideas as notes and theme the app your way. Built for Technovation Girls 2021.",
+    color: "#ece4f6",
+    cover: img("craftyly", "logo.webp", 512, 512, "Craftyly logo: a lightbulb made of colourful paint swirls"),
+    coverFit: "contain",
+    links: [
+      { label: "GitHub repo", href: "https://github.com/xummichelle/craftyly-app" },
+      {
+        label: "Figma prototype",
+        href: "https://www.figma.com/proto/me5lQx8MGw3p8vHpCa56EM/Craftyly-Project?node-id=2-3&node-type=canvas&t=q18ZVkBnquqWuO58-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=2%3A3",
+      },
+      { label: "1-min demo video", href: "https://youtu.be/BBWoRHR6wrU" },
+    ],
+    sections: [
+      {
+        heading: "Summary",
+        paragraphs: [
+          "Craftyly is a personalized space for artists and their ideas. It helps visual artists push through art block with a stream of fresh prompts and challenges, and gives them somewhere to keep the ideas that come out of it.",
+          "It started as my team's submission to the Technovation Girls 2021 challenge, where you get 12 weeks to build an app, write a business plan and pitch it to solve a real-world problem. I taught myself everything along the way.",
+        ],
+      },
+      {
+        heading: "Features",
+        bullets: [
+          "A prompt generator shown as a stack of cards: swipe right to save a prompt, left to pass. Prompts can be filtered by category (characters, environments…) and there's a full prompt history underneath.",
+          "Notes for accepted and rejected prompts, plus your own quick notes, with swipe-to-delete.",
+          "A gentle lightbulb message the first time you open the app each day, reminding you to take care of yourself.",
+          "Colour themes that restyle the whole interface, including the lightbulb designs.",
+          "Google sign-in or guest sign-in.",
+        ],
+      },
+      {
+        heading: "How I built it",
+        bullets: [
+          "Developed the Android app in Java with Firebase Authentication and Firestore as the backend (prompts live in Firestore).",
+          "Used the MVVM architecture and object-oriented design so the code stays easy to extend.",
+          "Designed the UI and a full clickable prototype in Figma.",
+          "Wrote a business plan and a pitch alongside the app, all in under 3 months.",
+        ],
+      },
+    ],
+    gallery: [
+      img("craftyly", "sign-in.webp", 486, 1005, "Craftyly sign-in screen", "Sign in"),
+      img("craftyly", "prompts.webp", 247, 512, "Prompt generator card with prompt history", "Prompt generator"),
+      img("craftyly", "notes.webp", 240, 512, "Notes screen with accepted and rejected prompts", "Notes"),
     ],
   },
   {
@@ -199,18 +306,51 @@ export const PROJECTS: Project[] = [
   {
     slug: "crochet-booth",
     category: "creative",
-    title: "Crochet Booth",
-    date: "Coming soon",
-    tags: ["Crochet", "Small business"],
-    blurb: "Handmade crochet pieces and a booth to sell them. Photos and the full story are on their way!",
+    title: "meelle crafts: Crochet Booth",
+    date: "Fall 2025",
+    tags: ["Crochet", "Small business", "Crafts 4 Charity"],
+    blurb:
+      "I crocheted a sheep bag, a giant strawberry plush and more, then sold them at my own booth at the Crafts 4 Charity fair, and learned a lot about pricing for pop-up markets.",
     color: "#f7efc4",
-    doodle: "🧶 crochet",
-    draft: true,
+    cover: img("crochet-booth", "booth.webp", 1400, 991, "Michelle at her crochet booth with a strawberry plush, sheep bag and crochet flowers"),
+    links: [{ label: "Full SLICC report (PDF)", href: "/projects/crochet-booth/slicc-report.pdf" }],
     sections: [
       {
-        heading: "The booth",
-        paragraphs: ["Photos and the full story of the crochet booth are coming soon."],
+        heading: "Summary",
+        paragraphs: [
+          "For my SLICC (a self-led course) I set out to run my own craft booth: crochet enough products, apply for a Crafts 4 Charity booth, and find a partner to share it with. I gave myself at least 5 hours of crocheting a week and checked in with crocheters I knew for advice along the way.",
+          "By the end of the term I'd made a sheep bag, a giant strawberry plush and a sheep AirPod case, teamed up with a partner I met at the UW crochet club (who brought a big batch of crochet flowers), and we sold at the Crafts 4 Charity fair on Nov 24–25, 2025.",
+        ],
       },
+      {
+        heading: "The booth",
+        bullets: [
+          "My pieces: sheep bag ($30), strawberry plush ($45) and sheep AirPod case ($15). My partner's flowers were $10 each or $45 a bouquet.",
+          "I researched prices on Etsy and other booths, and sold 2 of my 3 pieces.",
+          "Our \"Dance for $5 off\" sign was a last-minute idea that ended up pulling in a lot of attention (and delight).",
+        ],
+      },
+      {
+        heading: "What I learned",
+        bullets: [
+          "Pricing: my prices were fair for the size, but at a student pop-up people reach for small, cheap, impulse buys. Next time I'd make more ~$10 items.",
+          "Time management: making big pieces takes ages. Scheduling real breaks (and time with friends) is what kept me going.",
+          "Communication: as someone soft-spoken, I picked up simple ways to start conversations and draw people over, partly by watching my much more outgoing partner.",
+          "Networking: taking a break from schoolwork to visit crochet club is how I found my booth partner.",
+        ],
+      },
+      {
+        heading: "What's next",
+        paragraphs: [
+          "Crocheting takes a long time, so next I want to write crochet patterns and sell them on Etsy: make something once, and share it with lots of people.",
+        ],
+      },
+    ],
+    gallery: [
+      img("crochet-booth", "sheep-bag-1.webp", 946, 1261, "Sheep bag in progress: the first rows of bobble stitches", "Sheep bag: Oct 27"),
+      img("crochet-booth", "sheep-bag-2.webp", 946, 1261, "Sheep bag in progress with a face and ears", "Nov 4"),
+      img("crochet-booth", "sheep-bag-3.webp", 946, 1261, "Finished sheep bag with arms and legs", "Nov 16, ready for the fair!"),
+      img("crochet-booth", "strawberry-plush.webp", 636, 844, "Giant pink strawberry plush with green leaves", "Strawberry plush"),
     ],
   },
   {
@@ -358,7 +498,12 @@ export const PROJECTS: Project[] = [
   },
 ];
 
-export const projectsIn = (category: Category) => PROJECTS.filter((p) => p.category === category);
+/** Projects whose page lives under this category (used to build the pages). */
+export const pagesIn = (category: Category) => PROJECTS.filter((p) => p.category === category);
+
+/** Every card shown on a category's list, including ones that live elsewhere. */
+export const projectsIn = (category: Category) =>
+  PROJECTS.filter((p) => p.category === category || p.alsoIn?.includes(category));
 
 export const getProject = (category: Category, slug: string) =>
   PROJECTS.find((p) => p.category === category && p.slug === slug);

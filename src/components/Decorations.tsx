@@ -11,18 +11,14 @@ export function Scallop({ color = "var(--sheet)", className = "" }: { color?: st
 }
 
 /**
- * A slightly offset patch of waxy crayon colour, Woset-style, to sit behind a
- * photo or card. Put it inside a `relative` parent before the content.
+ * A patch of waxy crayon colour, Woset-style, to sit slightly offset behind a
+ * photo or a scrap of paper. Put it inside a `relative` parent before the
+ * content. Drawn in real pixels so the texture looks the same at any size.
  */
 export function CrayonBacking({ color = "var(--blue)", className = "" }: { color?: string; className?: string }) {
   return (
-    <svg
-      viewBox="0 0 400 400"
-      preserveAspectRatio="none"
-      className={`pointer-events-none absolute inset-0 h-full w-full overflow-visible ${className}`}
-      aria-hidden
-    >
-      <rect x={0} y={0} width={400} height={400} rx={34} style={{ fill: color }} filter="url(#crayon-fill)" />
+    <svg className={`pointer-events-none absolute inset-0 h-full w-full overflow-visible ${className}`} aria-hidden>
+      <rect width="100%" height="100%" rx={30} style={{ fill: color }} filter="url(#crayon-fill)" />
     </svg>
   );
 }

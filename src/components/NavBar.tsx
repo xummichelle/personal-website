@@ -7,13 +7,13 @@ import { usePet, type ActionType } from "@/pet/PetProvider";
 import { WalkingPet } from "./WalkingPet";
 import {
   BathIcon,
+  BowlIcon,
   BrushIcon,
-  ChickenWingIcon,
   CodeIcon,
   GitHubIcon,
   LinkedInIcon,
-  PooIcon,
   ResumeIcon,
+  ToiletIcon,
   UserIcon,
 } from "./icons";
 import { SITE } from "@/data/site";
@@ -38,8 +38,8 @@ const RIGHT: NavItem[] = [
 ];
 
 const CARE: { action: ActionType; label: string; icon: NavItem["icon"] }[] = [
-  { action: "feed", label: "Feed", icon: ChickenWingIcon },
-  { action: "poo", label: "Poo", icon: PooIcon },
+  { action: "feed", label: "Feed", icon: BowlIcon },
+  { action: "clean", label: "Clean up", icon: ToiletIcon },
   { action: "bathe", label: "Bathe", icon: BathIcon },
 ];
 

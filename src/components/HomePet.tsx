@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import Link from "next/link";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { Pet, type Swap } from "@/pet/Pet";
 import { PooPile } from "@/pet/PooPile";
-import { usePet, type Look } from "@/pet/PetProvider";
+import { usePet, type Chores, type Look } from "@/pet/PetProvider";
 import { usePooDrop } from "@/pet/usePooDrop";
+import { CrayonBacking } from "./Decorations";
 import { ANCHORS, PET_NAME, VIEWBOX } from "@/pet/config";
 import { FOODS, HATS, TOYS, findAccessory, type Accessory } from "@/pet/accessories";
 
@@ -12,91 +14,73 @@ const OPTIONS: Record<keyof Look, readonly Accessory[]> = { hat: HATS, toy: TOYS
 
 const pct = (v: number, of: number) => `${(v / of) * 100}%`;
 
-/** The pet on the home page: a caption, the pet with carousel arrows around it, and Save. */
+/** The pet on the home page: the note, and the pet with carousel arrows around it. Picks save automatically. */
 export function HomePet() {
-  const { hydrated, draft, setDraft, save, isDirty, action, poos, trigger } = usePet();
-  const [justSaved, setJustSaved] = useState(false);
+  const { hydrated, look, setLook, action, poos, trigger, needs, chores } = usePet();
   const [swap, setSwap] = useState<Swap | null>(null);
-
-  // Leaving the page (or closing the tab) keeps whatever is picked.
-  const saveRef = useRef(save);
-  useEffect(() => {
-    saveRef.current = save;
-  });
-  useEffect(() => {
-    const onHide = () => saveRef.current();
-    window.addEventListener("pagehide", onHide);
-    return () => {
-      window.removeEventListener("pagehide", onHide);
-      saveRef.current();
-    };
-  }, []);
 
   usePooDrop(() => (Math.random() < 0.5 ? 0.1 + Math.random() * 0.1 : 0.8 + Math.random() * 0.1));
 
   const cycle = (slot: keyof Look, dir: 1 | -1) => {
     const options = OPTIONS[slot];
-    const i = options.findIndex((o) => o.id === draft[slot]);
+    const i = options.findIndex((o) => o.id === look[slot]);
     const next = options[(i + dir + options.length) % options.length];
     const key = Date.now();
-    setSwap({ slot, from: draft[slot], dir, key });
-    setDraft({ [slot]: next.id } as Partial<Look>);
+    setSwap({ slot, from: look[slot], dir, key });
+    setLook({ [slot]: next.id } as Partial<Look>);
     // Once the slide has played, drop it so later re-renders don't replay it.
     setTimeout(() => setSwap((s) => (s?.key === key ? null : s)), 600);
   };
 
-  const onSave = () => {
-    save();
-    setJustSaved(true);
-    trigger("jump");
-    setTimeout(() => setJustSaved(false), 1800);
-  };
-
   const name = (list: readonly Accessory[], id: string) => findAccessory(list, id).label.toLowerCase();
   const article = (word: string) => (/^[aeiou]/.test(word) ? "an" : "a");
-  const toy = name(TOYS, draft.toy);
+  const toy = name(TOYS, look.toy);
 
   // Arrow positions, as percentages of the pet's box, so they follow the anchors.
   const hatY = pct(ANCHORS.head.y - 24, VIEWBOX.height);
   const handY = pct(ANCHORS.leftHand.y - 20, VIEWBOX.height);
 
   return (
-    // Two columns on desktop: the note with Save under it on the left, the pet on the right.
-    <section aria-labelledby="pet-heading" className="mt-6 grid items-start gap-x-12 lg:mt-8 lg:grid-cols-2 lg:grid-rows-[auto_1fr]">
+    // Two columns on desktop: the note on the left, the pet on the right.
+    <section aria-labelledby="pet-heading" className="mt-6 grid items-start gap-x-12 lg:mt-8 lg:grid-cols-2">
       {/* a note left on a scrap of torn notebook paper, taped down */}
       <div className="fade-in max-w-xl" style={{ animationDelay: "0.1s" }}>
-        <div className="scrap-note-wrap relative mt-3 -rotate-[1.5deg]">
-          <span className="scrap-tape" aria-hidden />
-          <div className="scrap-note pt-6 pr-6 pb-6 pl-10 text-xl sm:pr-10 sm:pl-14 sm:text-2xl">
-            <p>
-              will you take care of {PET_NAME} while i&apos;m busy? their favourite food is{" "}
-              <Pick slot="food" onCycle={(d) => cycle("food", d)}>
-                {name(FOODS, draft.food)}
-              </Pick>
-              , their favourite toy is {article(toy)}{" "}
-              <Pick slot="toy" onCycle={(d) => cycle("toy", d)}>
-                {toy}
-              </Pick>
-              , and they love wearing their{" "}
-              <Pick slot="hat" onCycle={(d) => cycle("hat", d)}>
-                {name(HATS, draft.hat)}
-              </Pick>
-              .
-            </p>
-            <p className="text-right font-hand">– michelle</p>
+        <div className="relative mt-3">
+          <CrayonBacking className="translate-x-4 translate-y-4 rotate-1 sm:translate-x-5 sm:translate-y-5" />
+          <div className="paper-shadow relative -rotate-[1.5deg]">
+            <span className="scrap-tape" aria-hidden />
+            <div className="scrap-note pt-6 pr-6 pb-6 pl-10 text-xl sm:pr-10 sm:pl-14 sm:text-2xl">
+              <p>
+                will you take care of {PET_NAME} while i&apos;m busy? their favourite food is{" "}
+                <Pick slot="food" onCycle={(d) => cycle("food", d)}>
+                  {name(FOODS, look.food)}
+                </Pick>
+                , their favourite toy is {article(toy)}{" "}
+                <Pick slot="toy" onCycle={(d) => cycle("toy", d)}>
+                  {toy}
+                </Pick>
+                , and they love wearing their{" "}
+                <Pick slot="hat" onCycle={(d) => cycle("hat", d)}>
+                  {name(HATS, look.hat)}
+                </Pick>
+                .
+              </p>
+              <ChoreList chores={chores} onChore={trigger} />
+              <p className="text-right font-hand">– michelle</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto mt-10 w-full max-w-md lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0">
+      <div className="mx-auto mt-10 w-full max-w-md lg:mt-0">
         <div className="relative">
-          <h2 id="pet-heading" className="mb-2 text-center font-hand text-3xl">
+          <h2 id="pet-heading" className="mb-6 text-center font-hand text-3xl">
             {PET_NAME}
           </h2>
           <div className="relative mx-auto w-[72%]">
             <div className={hydrated ? "pet-grow" : "opacity-0"}>
               <button type="button" onClick={() => trigger("spin")} className="block w-full cursor-pointer" aria-label={`Boop ${PET_NAME}`}>
-                <Pet look={draft} action={action} swap={swap} sad={poos.length >= 2} />
+                <Pet look={look} action={action} swap={swap} needs={needs} />
               </button>
             </div>
 
@@ -113,26 +97,84 @@ export function HomePet() {
             )}
           </div>
           <div className="absolute inset-x-0 bottom-1 h-0">
-            <PooPile poos={poos} size={44} />
+            <PooPile poos={poos} size={44} flushing={action?.type === "clean"} />
           </div>
         </div>
       </div>
-
-      {/* Save: under the note on desktop, under the pet on phones */}
-      <div className="mt-6 flex flex-col items-center gap-2 lg:col-start-1 lg:row-start-2 lg:mt-10 lg:flex-row lg:items-center lg:gap-4">
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={!isDirty && !justSaved}
-          className="pill px-7! py-2.5! cursor-pointer disabled:cursor-default disabled:opacity-40 disabled:hover:bg-card"
-        >
-          {justSaved ? "Saved ♥" : "Save"}
-        </button>
-        <span className="text-xs text-ink-soft" aria-live="polite">
-          {isDirty ? "unsaved changes" : `${PET_NAME} will remember this look`}
-        </span>
-      </div>
     </section>
+  );
+}
+
+const CHORES: { key: keyof Chores; label: string; action?: "feed" | "clean" | "bathe"; href?: string }[] = [
+  { key: "fed", label: `feed ${PET_NAME}`, action: "feed" },
+  { key: "cleaned", label: "clean up after them", action: "clean" },
+  { key: "bathed", label: "give them a bath", action: "bathe" },
+  { key: "walked", label: "take them on a walk through my portfolio", href: "/tech-projects" },
+];
+
+/**
+ * The p.s. to-do list on the note. Each line ticks itself off when the visitor
+ * does that chore (from here or the nav bar), and clicking a line does it.
+ */
+function ChoreList({ chores, onChore }: { chores: Chores; onChore: (action: "feed" | "clean" | "bathe") => void }) {
+  const allDone = CHORES.every((c) => chores[c.key]);
+  return (
+    <div style={{ marginTop: "var(--lh)" }}>
+      <p>p.s. while i&apos;m busy, could you:</p>
+      <ul>
+        {CHORES.map(({ key, label, action, href }) => {
+          const done = chores[key];
+          const text: ReactNode = (
+            <span className={`transition-colors ${done ? "text-ink-soft line-through decoration-red/70 decoration-2" : "group-hover/chore:text-blue"}`}>
+              {label}
+            </span>
+          );
+          return (
+            <li key={key} className="flex items-baseline gap-2">
+              <Checkbox done={done} />
+              {href ? (
+                <Link href={href} className="group/chore cursor-pointer text-left">
+                  {text}
+                </Link>
+              ) : (
+                <button type="button" onClick={() => onChore(action!)} className="group/chore cursor-pointer text-left">
+                  {text}
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      {allDone && <p className="font-hand text-blue">you&apos;re the best, thank you!! ♥</p>}
+    </div>
+  );
+}
+
+/** A wobbly hand-drawn box, with a red scribbled tick that draws itself in when done. */
+function Checkbox({ done }: { done: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-[0.8em] w-[0.8em] shrink-0 translate-y-[0.08em] overflow-visible" aria-hidden>
+      <path
+        d="M4 5 C9 4 15 4.6 20 4 C20.6 9 20 15 20.5 20 C15 20.6 9 20 4 20.5 C3.4 15 4 9 4 5 Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinejoin="round"
+      />
+      {done && (
+        <path
+          className="check-draw"
+          d="M6 12 L10.5 17.5 L23 1"
+          pathLength={1}
+          fill="none"
+          stroke="var(--red)"
+          strokeWidth={3.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
+      <title>{done ? "done" : "not done yet"}</title>
+    </svg>
   );
 }
 

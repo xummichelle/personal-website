@@ -4,9 +4,18 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { FOODS, HATS, TOYS, type FoodId, type HatId, type ToyId } from "./accessories";
 
 export type Look = { hat: HatId; toy: ToyId; food: FoodId };
-export type ActionType = "feed" | "poo" | "bathe" | "jump" | "spin";
+export type ActionType = "feed" | "poo" | "clean" | "bathe" | "jump" | "spin";
 export type PetAction = { type: ActionType; key: number };
 export type Poo = { id: number; x: number };
+/** What mimi needs right now. Each one is fixed by a care button. */
+export type Needs = {
+  /** Fixed by Feed. */
+  hungry: boolean;
+  /** Poo is lying around. Fixed by Clean. */
+  unhappy: boolean;
+  /** Overdue for a bath. Fixed by Bathe. */
+  dirty: boolean;
+};
 
 export const DEFAULT_LOOK: Look = { hat: "bow", toy: "yarn", food: "ice-cream" };
 
@@ -14,6 +23,7 @@ export const DEFAULT_LOOK: Look = { hat: "bow", toy: "yarn", food: "ice-cream" }
 export const ACTION_MS: Record<ActionType, number> = {
   feed: 2600,
   poo: 1700,
+  clean: 1100,
   bathe: 2800,
   jump: 700,
   spin: 800,
@@ -21,22 +31,44 @@ export const ACTION_MS: Record<ActionType, number> = {
 
 const LOOK_KEY = "pet:look";
 const POO_KEY = "pet:poos";
+const CARE_KEY = "pet:care";
 const MAX_POOS = 3;
 
+/**
+ * Tamagotchi timings, kept short because visitors only stay a few minutes.
+ * Hunger and dirt are measured from the last meal / bath (saved, so coming
+ * back later finds a hungry, smelly mimi). Poops happen while the tab is open.
+ */
+export const CARE = {
+  hungryAfterMs: 45_000,
+  dirtyAfterMs: 80_000,
+  /** A brand-new visitor's first hunger shows up this soon. */
+  firstHungerMs: 15_000,
+  firstPoopMs: 30_000,
+  poopEveryMs: [50_000, 80_000] as const,
+};
+
+type Care = { lastFed: number; lastBathed: number };
+
+/** The to-do list on the home page note. Ticked off as the visitor does each one. */
+export type Chores = { fed: boolean; cleaned: boolean; bathed: boolean; walked: boolean };
+const NO_CHORES: Chores = { fed: false, cleaned: false, bathed: false, walked: false };
+const CHORES_KEY = "pet:chores";
+const ACTION_CHORE: Partial<Record<ActionType, keyof Chores>> = { feed: "fed", clean: "cleaned", bathe: "bathed" };
+
 type PetContextValue = {
-  /** False until saved state has been read from localStorage. */
+  /** False until the saved look has been read from localStorage. */
   hydrated: boolean;
-  /** What's saved, and what the pet wears outside the home page. */
-  saved: Look;
-  /** What's currently picked in the customiser. */
-  draft: Look;
-  setDraft: (patch: Partial<Look>) => void;
-  save: () => void;
-  isDirty: boolean;
+  /** What the pet is wearing/holding. Saved automatically whenever it changes. */
+  look: Look;
+  setLook: (patch: Partial<Look>) => void;
   action: PetAction | null;
   trigger: (type: ActionType) => void;
   poos: Poo[];
   addPoo: (x: number) => void;
+  needs: Needs;
+  chores: Chores;
+  markChore: (chore: keyof Chores) => void;
 };
 
 const PetContext = createContext<PetContextValue | null>(null);
@@ -76,51 +108,134 @@ function writeStorage(key: string, value: unknown) {
 const isPooList = (v: unknown): v is Poo[] =>
   Array.isArray(v) && v.every((p) => typeof p?.id === "number" && typeof p?.x === "number");
 
+const isChores = (v: unknown): v is Chores =>
+  isObject(v) && (["fed", "cleaned", "bathed", "walked"] as const).every((k) => typeof v[k] === "boolean");
+
+const isCare = (v: unknown): v is Care =>
+  isObject(v) && typeof v.lastFed === "number" && typeof v.lastBathed === "number";
+
+const randomBetween = ([min, max]: readonly [number, number]) => min + Math.random() * (max - min);
+
 export function PetProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
-  const [saved, setSaved] = useState<Look>(DEFAULT_LOOK);
-  const [draft, setDraftState] = useState<Look>(DEFAULT_LOOK);
+  const [look, setLookState] = useState<Look>(DEFAULT_LOOK);
   const [action, setAction] = useState<PetAction | null>(null);
   const [poos, setPoos] = useState<Poo[]>([]);
+  const [care, setCare] = useState<Care | null>(null);
+  const [needs, setNeeds] = useState({ hungry: false, dirty: false });
+  const [chores, setChores] = useState<Chores>(NO_CHORES);
   const actionTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     const stored = readStorage(LOOK_KEY, isObject);
-    const look = stored && toLook(stored);
     const storedPoos = readStorage(POO_KEY, isPooList);
+    const storedCare = readStorage(CARE_KEY, isCare);
+    const storedChores = readStorage(CHORES_KEY, isChores);
+    const now = Date.now();
     /* eslint-disable react-hooks/set-state-in-effect -- one-time sync from localStorage after hydration */
-    if (look) {
-      setSaved(look);
-      setDraftState(look);
-    }
+    if (stored) setLookState(toLook(stored));
     if (storedPoos) setPoos(storedPoos.slice(0, MAX_POOS));
+    if (storedChores) setChores(storedChores);
+    setCare(
+      storedCare ?? {
+        lastFed: now - CARE.hungryAfterMs + CARE.firstHungerMs,
+        lastBathed: now,
+      },
+    );
     setHydrated(true);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
-  const setDraft = useCallback((patch: Partial<Look>) => {
-    setDraftState((d) => ({ ...d, ...patch }));
+  // Every change is saved straight away. Skipped until hydrated so the defaults
+  // never overwrite a look that's already stored.
+  useEffect(() => {
+    if (hydrated) writeStorage(LOOK_KEY, look);
+  }, [look, hydrated]);
+
+  const setLook = useCallback((patch: Partial<Look>) => {
+    setLookState((current) => ({ ...current, ...patch }));
   }, []);
 
-  const save = useCallback(() => {
-    // Before hydration the draft is just the defaults; don't clobber real saved data.
-    if (!hydrated) return;
-    setSaved(draft);
-    writeStorage(LOOK_KEY, draft);
-  }, [draft, hydrated]);
+  useEffect(() => {
+    if (care) writeStorage(CARE_KEY, care);
+  }, [care]);
+
+  useEffect(() => {
+    if (hydrated) writeStorage(CHORES_KEY, chores);
+  }, [chores, hydrated]);
+
+  const markChore = useCallback((chore: keyof Chores) => {
+    setChores((c) => (c[chore] ? c : { ...c, [chore]: true }));
+  }, []);
+
+  // Check hunger and dirt once a second. Only re-renders when one flips.
+  useEffect(() => {
+    if (!care) return;
+    const check = () => {
+      const now = Date.now();
+      const hungry = now - care.lastFed > CARE.hungryAfterMs;
+      const dirty = now - care.lastBathed > CARE.dirtyAfterMs;
+      setNeeds((n) => (n.hungry === hungry && n.dirty === dirty ? n : { hungry, dirty }));
+    };
+    check();
+    const t = setInterval(check, 1000);
+    return () => clearInterval(t);
+  }, [care]);
 
   const trigger = useCallback((type: ActionType) => {
     clearTimeout(actionTimer.current);
     setAction({ type, key: Date.now() });
     actionTimer.current = setTimeout(() => setAction(null), ACTION_MS[type]);
+    const chore = ACTION_CHORE[type];
+    if (chore) setChores((c) => (c[chore] ? c : { ...c, [chore]: true }));
+    // Each care action fixes its need partway through its animation.
+    if (type === "feed") {
+      setTimeout(() => setCare((c) => c && { ...c, lastFed: Date.now() }), ACTION_MS.feed * 0.8);
+    }
     if (type === "bathe") {
-      // Bath time washes the poos away, like cleaning up in a tamagotchi.
+      setTimeout(() => setCare((c) => c && { ...c, lastBathed: Date.now() }), ACTION_MS.bathe * 0.6);
+    }
+    if (type === "clean") {
+      // flush! (the poos spin away in PooPile while this plays)
       setTimeout(() => {
         setPoos([]);
         writeStorage(POO_KEY, []);
-      }, ACTION_MS.bathe * 0.6);
+      }, ACTION_MS.clean * 0.6);
     }
   }, []);
+
+  // When the last chore gets ticked off, mimi does a happy spin. Only on the
+  // transition, so a returning visitor with everything done doesn't get one.
+  const allDone = chores.fed && chores.cleaned && chores.bathed && chores.walked;
+  const wasAllDone = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!hydrated) return;
+    if (wasAllDone.current === false && allDone) {
+      const t = setTimeout(() => trigger("spin"), ACTION_MS.feed);
+      wasAllDone.current = true;
+      return () => clearTimeout(t);
+    }
+    wasAllDone.current = allDone;
+  }, [allDone, hydrated, trigger]);
+
+  // mimi poops on her own every so often, like a real tamagotchi, but only
+  // while the tab is visible, not mid-action, and not past the poo limit.
+  const busyRef = useRef(false);
+  const pooCountRef = useRef(0);
+  useEffect(() => {
+    busyRef.current = action !== null;
+    pooCountRef.current = poos.length;
+  });
+  useEffect(() => {
+    if (!hydrated) return;
+    let nextPoopAt = Date.now() + CARE.firstPoopMs;
+    const t = setInterval(() => {
+      if (document.hidden || busyRef.current || Date.now() < nextPoopAt) return;
+      nextPoopAt = Date.now() + randomBetween(CARE.poopEveryMs);
+      if (pooCountRef.current < MAX_POOS) trigger("poo");
+    }, 1000);
+    return () => clearInterval(t);
+  }, [hydrated, trigger]);
 
   const addPoo = useCallback((x: number) => {
     setPoos((list) => {
@@ -134,15 +249,15 @@ export function PetProvider({ children }: { children: ReactNode }) {
     <PetContext.Provider
       value={{
         hydrated,
-        saved,
-        draft,
-        setDraft,
-        save,
-        isDirty: saved.hat !== draft.hat || saved.toy !== draft.toy || saved.food !== draft.food,
+        look,
+        setLook,
         action,
         trigger,
         poos,
         addPoo,
+        needs: { ...needs, unhappy: poos.length > 0 },
+        chores,
+        markChore,
       }}
     >
       {children}

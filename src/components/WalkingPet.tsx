@@ -16,12 +16,15 @@ const SPEED = 42; // px per second
  * triggered action (feed, poo, bath, jump, spin).
  */
 export function WalkingPet() {
-  // The saved look only exists in the browser, so don't server-render the pet.
+  // The pet's look only exists in the browser, so don't server-render it.
   return useMounted() ? <Walker /> : null;
 }
 
 function Walker() {
-  const { saved, action, poos, trigger } = usePet();
+  const { look, action, poos, trigger, needs, markChore } = usePet();
+
+  // Being out on the nav bar counts as taking mimi for a walk (the note's to-do list).
+  useEffect(() => markChore("walked"), [markChore]);
   const laneRef = useRef<HTMLDivElement>(null);
   const petRef = useRef<HTMLDivElement>(null);
   const flipRef = useRef<HTMLDivElement>(null);
@@ -84,7 +87,7 @@ function Walker() {
 
   return (
     <div ref={laneRef} className="pointer-events-none absolute inset-x-2 bottom-full h-24 sm:inset-x-6">
-      <PooPile poos={poos} size={30} />
+      <PooPile poos={poos} size={30} flushing={action?.type === "clean"} />
       <div ref={petRef} className="absolute -bottom-1.25 left-0" style={{ width: PET_WIDTH }}>
         <div className="pet-arrive">
           <div ref={flipRef}>
@@ -94,7 +97,7 @@ function Walker() {
               className="pointer-events-auto block w-full cursor-pointer"
               aria-label="Boop the pet"
             >
-              <Pet look={saved} action={action} walking={walking} sad={poos.length >= 2} />
+              <Pet look={look} action={action} walking={walking} needs={needs} />
             </button>
           </div>
         </div>

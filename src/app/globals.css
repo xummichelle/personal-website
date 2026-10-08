@@ -95,7 +95,7 @@ body {
 /* ── Scrap-paper note (home page) ─────────────────────────────────────── */
 
 /* The wrapper carries the shadow so it follows the torn clip-path below. */
-.scrap-note-wrap {
+.paper-shadow {
   filter: drop-shadow(0 8px 10px rgb(31 34 53 / 0.14)) drop-shadow(0 1px 1px rgb(31 34 53 / 0.12));
 }
 
@@ -131,6 +131,50 @@ body {
   }
 }
 
+/* a plain scrap of paper, torn on every edge (about page photo) */
+.scrap-paper {
+  background-color: #fffef9;
+  clip-path: polygon(
+    0% 1.9px, 4% 0.9px, 8% 3.9px, 12% 0.4px,
+    16% 3.2px, 20% 2.2px, 24% 0.3px, 28% 3.0px,
+    32% 0.2px, 36% 2.6px, 40% 0.4px, 44% 0.5px,
+    48% 2.5px, 52% 5.0px, 56% 0.7px, 60% 1.3px,
+    64% 3.8px, 68% 5.7px, 72% 3.5px, 76% 2.4px,
+    80% 5.9px, 84% 0.3px, 88% 5.2px, 92% 1.7px,
+    96% 0.9px, 100% 0.7px, calc(100% - 1.9px) 4%, calc(100% - 4.9px) 8%,
+    calc(100% - 1.1px) 12%, calc(100% - 3.5px) 16%, calc(100% - 3.8px) 20%, calc(100% - 2.2px) 24%,
+    calc(100% - 3.3px) 28%, calc(100% - 0.4px) 32%, calc(100% - 0.4px) 36%, calc(100% - 1.2px) 40%,
+    calc(100% - 4.1px) 44%, calc(100% - 2.6px) 48%, calc(100% - 1.9px) 52%, calc(100% - 3.5px) 56%,
+    calc(100% - 2.7px) 60%, calc(100% - 1.8px) 64%, calc(100% - 4.8px) 68%, calc(100% - 4.2px) 72%,
+    calc(100% - 1.5px) 76%, calc(100% - 3.4px) 80%, calc(100% - 3.2px) 84%, calc(100% - 5.3px) 88%,
+    calc(100% - 4.4px) 92%, calc(100% - 1.7px) 96%, 100% calc(100% - 6.9px), 96% calc(100% - 0.8px),
+    92% calc(100% - 2.9px), 88% calc(100% - 5.3px), 84% calc(100% - 1.1px), 80% calc(100% - 3.4px),
+    76% calc(100% - 0.3px), 72% calc(100% - 4.7px), 68% calc(100% - 5.4px), 64% calc(100% - 4.0px),
+    60% calc(100% - 6.1px), 56% calc(100% - 2.2px), 52% calc(100% - 4.9px), 48% calc(100% - 4.2px),
+    44% calc(100% - 4.1px), 40% calc(100% - 3.2px), 36% calc(100% - 5.9px), 32% calc(100% - 6.6px),
+    28% calc(100% - 3.3px), 24% calc(100% - 4.6px), 20% calc(100% - 0.4px), 16% calc(100% - 4.9px),
+    12% calc(100% - 4.5px), 8% calc(100% - 7.0px), 4% calc(100% - 5.8px), 0% calc(100% - 2.0px),
+    2.3px 96%, 4.0px 92%, 0.1px 88%, 2.8px 84%,
+    1.0px 80%, 0.7px 76%, 0.4px 72%, 4.6px 68%,
+    0.8px 64%, 1.5px 60%, 2.3px 56%, 5.2px 52%,
+    0.5px 48%, 2.7px 44%, 3.3px 40%, 5.3px 36%,
+    4.9px 32%, 5.2px 28%, 1.7px 24%, 2.5px 20%,
+    2.2px 16%, 5.3px 12%, 5.7px 8%, 0.9px 4%
+  );
+}
+
+/* checklist tick drawing itself in, like a pen stroke */
+.check-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: check-draw 0.4s steps(4) forwards;
+}
+@keyframes check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 /* a strip of washi tape holding the note down */
 .scrap-tape {
   position: absolute;
@@ -144,56 +188,43 @@ body {
   clip-path: polygon(2% 0, 98% 4%, 100% 30%, 97% 55%, 100% 80%, 97% 100%, 3% 96%, 0 70%, 3% 45%, 0 20%);
 }
 
-/* ── Project cards: lift + crayon outline on hover ────────────────────── */
+/* ── Project cards: taped scraps of paper ───────────────────────────────
+   Each card is a torn scrap tilted a little differently. On hover the paper
+   lifts and straightens, and a patch of crayon colour shows up underneath. */
 
-.crayon-card {
+.scrap-card {
   position: relative;
-  background: var(--card);
-  border: 2px solid var(--ink);
-  border-radius: 28px;
-  transition:
-    transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1),
-    box-shadow 0.25s ease,
-    border-color 0.15s ease;
+  display: block;
+  transform: rotate(var(--tilt, -0.8deg));
+  transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
-
-/* Two rough, grainy strokes that fade in on hover — like going over the
-   edge with a real crayon. The #crayon filters are defined in SvgDefs. */
-.crayon-card::before,
-.crayon-card::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border: 4px solid var(--ink);
-  border-radius: 30px;
-  filter: url(#crayon);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
+.scrap-card:nth-child(4n + 2) {
+  --tilt: 0.9deg;
 }
-.crayon-card::after {
-  inset: -2px -6px -6px -2px;
-  border-width: 3px;
-  border-color: var(--blue);
-  border-radius: 32px 26px 34px 28px;
-  filter: url(#crayon-2);
+.scrap-card:nth-child(4n + 3) {
+  --tilt: 0.5deg;
 }
-
-.crayon-card:hover,
-.crayon-card:focus-visible {
-  transform: translateY(-8px) rotate(-0.6deg);
-  border-color: transparent;
-  box-shadow: 0 18px 30px -12px color-mix(in srgb, var(--ink) 35%, transparent);
+.scrap-card:nth-child(4n) {
+  --tilt: -0.4deg;
+}
+.scrap-card:hover,
+.scrap-card:focus-visible {
+  transform: translateY(-8px) rotate(0deg);
   outline: none;
 }
-.crayon-card:nth-child(even):hover {
-  transform: translateY(-8px) rotate(0.6deg);
+
+/* the crayon stays put while the paper lifts off it (hence the extra 8px) */
+.scrap-card-crayon {
+  opacity: 0;
+  transform: translate(0, 0) rotate(0deg);
+  transition:
+    opacity 0.2s ease,
+    transform 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
-.crayon-card:hover::before,
-.crayon-card:hover::after,
-.crayon-card:focus-visible::before,
-.crayon-card:focus-visible::after {
+.scrap-card:hover .scrap-card-crayon,
+.scrap-card:focus-visible .scrap-card-crayon {
   opacity: 1;
+  transform: translate(14px, 22px) rotate(1.5deg);
 }
 
 /* Woset-style "misprint": flat colour fills knocked slightly off the lines */
@@ -439,6 +470,52 @@ body {
   from { transform: scale(0) translateY(-10px); }
   to { transform: scale(1); }
 }
+/* Clean: poos spin down the drain */
+.poo-flush {
+  transform-origin: 50% 70%;
+  animation: poo-flush 0.66s ease-in forwards;
+}
+@keyframes poo-flush {
+  to {
+    transform: rotate(540deg) scale(0);
+    opacity: 0;
+  }
+}
+.pet-anim-clean {
+  animation: pet-hop 0.55s ease-in-out 2;
+}
+@keyframes pet-hop {
+  50% {
+    transform: translateY(-10%) scale(0.96, 1.04);
+  }
+}
+
+/* mimi's thought bubble pops in; with two needs the icons take turns */
+.mood-bubble {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+  animation: mood-pop 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+@keyframes mood-pop {
+  from {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+}
+.mood-icon-cycle {
+  animation: mood-cycle 4s infinite both;
+}
+@keyframes mood-cycle {
+  0%,
+  48% {
+    opacity: 1;
+  }
+  50%,
+  98% {
+    opacity: 0;
+  }
+}
+
 .stink {
   animation: stink 1.6s ease-in-out infinite;
 }

@@ -13,26 +13,54 @@ const base = {
 
 type IconProps = SVGProps<SVGSVGElement>;
 
-export function ChickenWingIcon(props: IconProps) {
+const artStroke = {
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2.2,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+} as const;
+
+/** Rice bowl with chopsticks, on the 32×32 grid. Shared by the Feed button and mimi's hungry thought bubble. */
+export function BowlArt() {
   return (
-    <svg {...base} {...props}>
-      <path d="M19 4c5 0 9 4 9 9 0 6-6 9-11 8l-4 4" fill="#efdf8a" />
-      <path d="M19 4c-5 0-9 4-9 9 0 2 1 4 2 5" fill="#efdf8a" />
-      <path d="M13 25c-1 3-5 4-6 1-3 0-4-4-1-5 1-3 5-2 5 0" fill="#ffffff" />
-      <path d="M17 9c2 0 4 1 5 3" opacity={0.6} />
+    <g {...artStroke}>
+      <path d="M12 7c-1.5-1.5 1.5-2.5 0-4.5M17 7c-1.5-1.5 1.5-2.5 0-4.5" opacity={0.6} />
+      <path d="M19 12 29 4M21 13l9-6" />
+      <path d="M6 15c1-4 5-6 10-6s9 2 10 6" fill="#fff" />
+      <path d="M4 15h24c0 7-5 12-12 12S4 22 4 15Z" fill="#6d7fc0" />
+      <path d="M8 19h16" stroke="#efdf8a" strokeWidth={2.4} />
+    </g>
+  );
+}
+
+/** Broken heart, on the 32×32 grid: mimi's "unhappy" thought. */
+export function BrokenHeartArt() {
+  return (
+    <g {...artStroke}>
+      <path d="M16 27C9 22 4 17 4 11.5 4 8 6.8 5 10.3 5c2.4 0 4.4 1.3 5.7 3.3C17.3 6.3 19.3 5 21.7 5 25.2 5 28 8 28 11.5 28 17 23 22 16 27Z" fill="#a8434b" />
+      <path d="M16 8.3 13.5 14l4 2.5-2.5 5.5" stroke="#fff" strokeWidth={2.4} />
+    </g>
+  );
+}
+
+export function BowlIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden {...props}>
+      <BowlArt />
     </svg>
   );
 }
 
-export function PooIcon(props: IconProps) {
+/** A toilet (side view: tall tank, seat, bowl, pedestal), for flushing mimi's poos away. */
+export function ToiletIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>
-      <path
-        d="M6 27c-3 0-3-5 0-5-2-3 1-6 4-5-1-4 3-7 6-5 1-3 5-3 4 1 4 0 5 4 2 6 5 0 6 8 1 8Z"
-        fill="#8a6248"
-      />
-      <circle cx={12} cy={22} r={0.6} fill="currentColor" />
-      <circle cx={19} cy={22} r={0.6} fill="currentColor" />
+      <rect x={4.5} y={2.5} width={10.5} height={13} rx={2} fill="#fff" />
+      <path d="M7.5 6h4" />
+      <path d="M6.5 16h19.5c0 4.3-3.4 7-7.5 7.4l1.2 5.6h-8.4l1-5.7c-3.6-.9-5.8-3.5-5.8-7.3Z" fill="#fff" />
+      <path d="M4 16h23.5" strokeWidth={2.8} />
+      <path d="M25 4.5l1.2 1.2M28.5 8h1.5M24.5 8.5l-.8.8" stroke="#6d7fc0" />
     </svg>
   );
 }

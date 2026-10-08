@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { ProjectDetailPage } from "@/components/ProjectDetailPage";
-import { getProject, projectsIn } from "@/data/projects";
+import { getProject, pagesIn } from "@/data/projects";
 
 export function generateStaticParams() {
-  return projectsIn("tech").map((p) => ({ slug: p.slug }));
+  return pagesIn("tech").map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata(props: PageProps<"/tech-projects/[slug]">): Promise<Metadata> {

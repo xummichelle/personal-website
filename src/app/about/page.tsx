@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "About me" };
 
 export default function AboutPage() {
   return (
-    <main className="page-pad flex flex-1 flex-col">
+    <main className="page-pad flex flex-1 flex-col overflow-x-clip">
       <section className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-5 pt-14 pb-16 sm:px-8 md:grid-cols-[1.15fr_1fr] md:pt-20">
         <div className="fade-in">
           <h1 className="font-hand text-6xl leading-[0.95] sm:text-7xl lg:text-8xl">
@@ -52,17 +52,23 @@ export default function AboutPage() {
         </div>
 
         <div className="fade-in relative mx-auto w-full max-w-sm md:max-w-none" style={{ animationDelay: "0.1s" }}>
-          {/* photo with an offset layer of crayon colour underneath, like mimi's misprinted fill */}
+          {/* photo taped onto a torn scrap of paper, with crayon colour peeking out underneath */}
           <div className="relative">
-            <CrayonBacking className="translate-x-4 translate-y-4 -rotate-2 sm:translate-x-6 sm:translate-y-5" />
-            <Image
-              src="/me.webp"
-              alt="Michelle Xu"
-              width={383}
-              height={383}
-              loading="eager"
-              className="relative aspect-square w-full rounded-[28px] border-[2.5px] border-ink object-cover"
-            />
+            <CrayonBacking className="translate-x-5 translate-y-5 -rotate-3 sm:translate-x-7 sm:translate-y-6" />
+            <div className="paper-shadow relative rotate-[1.5deg]">
+              <span className="scrap-tape" style={{ left: "12%", transform: "translateX(-50%) rotate(-32deg)" }} aria-hidden />
+              <span className="scrap-tape" style={{ left: "88%", transform: "translateX(-50%) rotate(28deg)" }} aria-hidden />
+              <div className="scrap-paper p-4 pb-6 sm:p-5 sm:pb-8">
+                <Image
+                  src="/me.webp"
+                  alt="Michelle Xu"
+                  width={383}
+                  height={383}
+                  loading="eager"
+                  className="aspect-square w-full rounded-[3px] object-cover"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
